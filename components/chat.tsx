@@ -1,10 +1,19 @@
 "use client";
-import * as React from "react";
+import React, { useEffect } from "react";
 import { Conversation, Message, Role } from "@/types/chat";
+import kuromoji from "kuromoji";
 
 interface ChatProps {}
 
 export function Chat({}: ChatProps) {
+  // read dictionary from /dict(in public) and tokenize
+  useEffect(() => {
+    kuromoji.builder({ dicPath: "/dict" }).build(function (err, tokenizer) {
+      var data = tokenizer.tokenize("私はアニメが大好きです");
+      console.log(data);
+    });
+  }, []);
+
   // Chat-history
   const [conversation, setConversation] = React.useState<Conversation>({
     // Default conversation
@@ -15,8 +24,11 @@ export function Chat({}: ChatProps) {
         content: "こんにちは、ユーザーさん！何かお手伝いできることがありますか？",
       },
       { role: "user", content: "日本語を勉強しています。" },
-      { role: "bot", content: "それは素晴らしいですね！どのようにお手伝いできますか？" },
-    ]
+      {
+        role: "bot",
+        content: "それは素晴らしいですね！どのようにお手伝いできますか？",
+      },
+    ],
   });
 
   // Chat-input
