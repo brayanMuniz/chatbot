@@ -1,16 +1,24 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Conversation, Message, Role } from "@/types/chat";
 import kuromoji from "kuromoji";
 
 interface ChatProps {}
 
 export function Chat({}: ChatProps) {
-  // read dictionary from /dict(in public) and tokenize
+  const [tokenizer, setTokenizer] =
+    useState<kuromoji.Tokenizer<kuromoji.IpadicFeatures> | null>(null);
+
+  // Read dictionary and build tokenizer
   useEffect(() => {
-    kuromoji.builder({ dicPath: "/dict" }).build(function (err, tokenizer) {
-      var data = tokenizer.tokenize("私はアニメが大好きです");
-      console.log(data);
+    kuromoji.builder({ dicPath: "/dict" }).build(function (err, builtTokenizer) {
+      if (err) {
+        console.log(err);
+        return;
+      }
+
+      // Save the built tokenizer
+      setTokenizer(builtTokenizer);
     });
   }, []);
 
@@ -53,13 +61,41 @@ export function Chat({}: ChatProps) {
     }
   }, [conversation]);
 
+  // Component to render text with ruby annotations
+  interface RubyTextProps {
+    text: string;
+    tokenizer: kuromoji.Tokenizer<kuromoji.IpadicFeatures> | null;
+  }
+
+  // Component to render text with ruby annotations
+  const RubyText: React.FC<RubyTextProps> = ({ text, tokenizer }) => {
+    if (!tokenizer) return <>{text}</>;
+
+    const tokens = tokenizer.tokenize(text);
+    return (
+      <>
+        {tokens.map((token, index) =>
+          token.reading ? (
+            <ruby key={index}>
+              {token.surface_form}
+              <rt>{token.reading}</rt>
+            </ruby>
+          ) : (
+            token.surface_form
+          )
+        )}
+      </>
+    );
+  };
+
   return (
     <div className="flex flex-col space-y-4 w-1/2">
       <div className="flex flex-col space-y-2 overflow-auto h-[80vh]">
         {conversation.messages.map((message, index) => (
           <div key={index} className="flex items-center text-lg">
             <p className="py-2">
-              {message.role === "user" ? "User" : "Bot"}:<p>{message.content}</p>
+              {message.role === "user" ? "User" : "Bot"}:
+              <RubyText text={message.content} tokenizer={tokenizer} />
             </p>
           </div>
         ))}
