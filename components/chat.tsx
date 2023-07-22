@@ -49,15 +49,39 @@ export function Chat({}: ChatProps) {
   };
 
   const handleNewMessage = (role: Role, content: string) => {
-    const newMessage: Message = { role, content };
-    setConversation((prevConversation) => ({
-      messages: [...prevConversation.messages, newMessage],
-    }));
+    if (role === "bot") {
+      // ! This is a simple implementation of a bot that types out the message
+      // ! when the api is called. You can replace this with a more complex code that depends on the message content and output.
+      // Add an empty message
+      setConversation((prevConversation) => ({
+        messages: [...prevConversation.messages, { role, content: "" }],
+      }));
+
+      // Type out the message one character at a time
+      let i = 0;
+      const typingInterval = setInterval(() => {
+        setConversation((prevConversation) => {
+          const messages = [...prevConversation.messages];
+          messages[messages.length - 1].content += content[i];
+          return { messages };
+        });
+
+        i++;
+        if (i >= content.length - 1) {
+          clearInterval(typingInterval);
+        }
+      }, 100); // adjust the delay to control the typing speed
+    } else {
+      const newMessage: Message = { role, content };
+      setConversation((prevConversation) => ({
+        messages: [...prevConversation.messages, newMessage],
+      }));
+    }
   };
 
   // Scroll to bottom when new message is added
   const bottomRef = React.useRef<HTMLDivElement>(null);
-  React.useEffect(() => {
+  useEffect(() => {
     if (bottomRef.current) {
       bottomRef.current.scrollIntoView({ behavior: "smooth" });
     }
