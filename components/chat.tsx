@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import { Conversation, Message, Role } from "@/types/chat";
 import kuromoji from "kuromoji";
 
+import RubyText from "./RubyText";
+
 interface ChatProps {}
 
 export function Chat({}: ChatProps) {
@@ -60,40 +62,6 @@ export function Chat({}: ChatProps) {
       bottomRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [conversation]);
-
-  // Component to render text with ruby annotations
-  interface RubyTextProps {
-    text: string;
-    tokenizer: kuromoji.Tokenizer<kuromoji.IpadicFeatures> | null;
-  }
-
-  // Component to render text with ruby annotations
-  const isKanji = (ch: string) => {
-    return (
-      (ch >= "\u4e00" && ch <= "\u9faf") || // CJK Unified Ideographs
-      (ch >= "\u3400" && ch <= "\u4dbf") // CJK Unified Ideographs Extension A
-    );
-  };
-
-  const RubyText: React.FC<RubyTextProps> = ({ text, tokenizer }) => {
-    if (!tokenizer) return <>{text}</>;
-
-    const tokens = tokenizer.tokenize(text);
-    return (
-      <>
-        {tokens.map((token, index) =>
-          token.reading && [...token.surface_form].some(isKanji) ? (
-            <ruby key={index}>
-              {token.surface_form}
-              <rt>{token.reading}</rt>
-            </ruby>
-          ) : (
-            token.surface_form
-          )
-        )}
-      </>
-    );
-  };
 
   return (
     <div className="flex flex-col space-y-4 w-1/2">
