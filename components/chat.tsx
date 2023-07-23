@@ -50,24 +50,28 @@ export function Chat({}: ChatProps) {
       }));
 
       // Call OpenAI API
+      console.log("Calling OpenAI API");
       const response = await openai.createChatCompletion({
         model: "gpt-3.5-turbo",
         messages: [
           {
             role: "system",
-            content: "You are a helpful Japanese language learning assistant.",
+            content:
+              "You are a helpful Japanese language learning assistant. Your role is to help the user understand the meaning of Japanese sentences. When breaking down sentences, provide the meaning of each word or phrase in English, but do not provide any romaji or hiragana transcriptions. The web client will automatically generate furigana for all kanji characters, so there is no need for you to provide pronunciation guidance. For example, if the sentence is '私がアニメ大好きです', you should explain it as '私 - I, が - subject marker, アニメ - anime, 大好き - love, です - is. So, the sentence means 'I love anime.'",
           },
           ...conversation.messages,
           { role: "user", content: content },
         ],
       });
+
+      // Add the response to the conversation
       console.log(response.data);
       if (response.data.choices[0].message?.content)
         handleNewMessage("assistant", response.data.choices[0].message?.content);
     } else if (role === "assistant") {
       // Add an empty message
       setConversation((prevConversation) => ({
-        messages: [...prevConversation.messages, { role, content: "" }],
+        messages: [...prevConversation.messages, { role, content: content[0] }],
       }));
 
       // Type out the message one character at a time
@@ -83,12 +87,7 @@ export function Chat({}: ChatProps) {
         if (i >= content.length - 1) {
           clearInterval(typingInterval);
         }
-      }, 50); // adjust the delay to control the typing speed
-    } else {
-      const newMessage: Message = { role, content };
-      setConversation((prevConversation) => ({
-        messages: [...prevConversation.messages, newMessage],
-      }));
+      }, 30); // adjust the delay to control the typing speed
     }
   };
 
@@ -101,13 +100,22 @@ export function Chat({}: ChatProps) {
   }, [conversation]);
 
   return (
-    <div className="flex flex-col space-y-4 w-1/2">
+    <div className="flex flex-col space-y-4 w-7/12">
       <div className="flex flex-col space-y-2 overflow-auto h-[80vh]">
         {conversation.messages.map((message, index) => (
           <div key={index} className="flex items-center text-lg">
             <p className="py-2">
-              {message.role === "user" ? "User" : "assistant"}:
-              <RubyText text={message.content} tokenizer={tokenizer} />
+              {message.role === "user" ? "User" : "assistant "}:
+              {message.role === "assistant" ? (
+                message.content.split("\n").map((line, i) => (
+                  <React.Fragment key={i}>
+                    <RubyText text={line} tokenizer={tokenizer} />
+                    <br />
+                  </React.Fragment>
+                ))
+              ) : (
+                <RubyText text={message.content} tokenizer={tokenizer} />
+              )}
             </p>
           </div>
         ))}
