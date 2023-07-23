@@ -13,6 +13,13 @@ const isKanji = (ch: string) => {
   );
 };
 
+function katakanaToHiragana(src: string) {
+  return src.replace(/[\u30a1-\u30f6]/g, function (match) {
+    var chr = match.charCodeAt(0) - 0x60;
+    return String.fromCharCode(chr);
+  });
+}
+
 const RubyText: React.FC<RubyTextProps> = ({ text, tokenizer }) => {
   if (!tokenizer) return <>{text}</>;
 
@@ -23,7 +30,7 @@ const RubyText: React.FC<RubyTextProps> = ({ text, tokenizer }) => {
         token.reading && [...token.surface_form].some(isKanji) ? (
           <ruby key={index}>
             {token.surface_form}
-            <rt>{token.reading}</rt>
+            <rt>{katakanaToHiragana(token.reading)}</rt>
           </ruby>
         ) : (
           token.surface_form
