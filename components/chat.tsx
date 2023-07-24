@@ -16,6 +16,7 @@ interface ChatProps {}
 export function Chat({}: ChatProps) {
   const [tokenizer, setTokenizer] =
     useState<kuromoji.Tokenizer<kuromoji.IpadicFeatures> | null>(null);
+  const [assistantIsTyping, setAssistantIsTyping] = useState(false);
 
   // Read dictionary and build tokenizer
   useEffect(() => {
@@ -50,14 +51,15 @@ export function Chat({}: ChatProps) {
       }));
 
       // Call OpenAI API
-      console.log("Calling OpenAI API");
+      console.log("Calling OpenAI API, displaying response...");
+      setAssistantIsTyping(true);
       const response = await openai.createChatCompletion({
         model: "gpt-3.5-turbo",
         messages: [
           {
             role: "system",
             content:
-              "You are a helpful Japanese language learning assistant. Your role is to help the user understand the meaning of Japanese sentences. When breaking down sentences, provide the meaning of each word or phrase in English, but do not provide any romaji or hiragana transcriptions. The web client will automatically generate furigana for all kanji characters, so there is no need for you to provide pronunciation guidance. For example, if the sentence is '私がアニメ大好きです', you should explain it as '私 - I, が - subject marker, アニメ - anime, 大好き - love, です - is. So, the sentence means 'I love anime.'",
+              "You are a helpful Japanese language learning assistant. The web client will automatically generate furigana for all kanji characters, so there is no need for you to provide pronunciation guidance.",
           },
           ...conversation.messages,
           { role: "user", content: content },
@@ -69,6 +71,8 @@ export function Chat({}: ChatProps) {
       if (response.data.choices[0].message?.content)
         handleNewMessage("assistant", response.data.choices[0].message?.content);
     } else if (role === "assistant") {
+      setAssistantIsTyping(true);
+
       // Add an empty message
       setConversation((prevConversation) => ({
         messages: [...prevConversation.messages, { role, content: content[0] }],
@@ -88,6 +92,8 @@ export function Chat({}: ChatProps) {
           clearInterval(typingInterval);
         }
       }, 30); // adjust the delay to control the typing speed
+
+      setAssistantIsTyping(false);
     }
   };
 
@@ -124,6 +130,7 @@ export function Chat({}: ChatProps) {
 
       <div className="flex flex-col space-y-4">
         <input
+          placeholder="Type a message..."
           type="text"
           value={message}
           onChange={handleMessageChange}
@@ -133,6 +140,7 @@ export function Chat({}: ChatProps) {
               setMessage("");
             }
           }}
+          disabled={assistantIsTyping}
           className="border p-2 bg-black text-white"
         />
       </div>
