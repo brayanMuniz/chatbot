@@ -26,16 +26,18 @@ const RubyText: React.FC<RubyTextProps> = ({ text, tokenizer }) => {
   const tokens = tokenizer.tokenize(text);
   return (
     <>
-      {tokens.map((token, index) =>
-        token.reading && [...token.surface_form].some(isKanji) ? (
-          <ruby key={index}>
-            {token.surface_form}
-            <rt>{katakanaToHiragana(token.reading)}</rt>
-          </ruby>
-        ) : (
-          token.surface_form
-        )
-      )}
+      {tokens.map((token, index) => {
+        if (token.reading && [...token.surface_form].some(isKanji)) {
+          return (
+            <ruby key={index}>
+              {token.surface_form}
+              <rt>{katakanaToHiragana(token.reading)}</rt>
+            </ruby>
+          );
+        } else {
+          return token.surface_form;
+        }
+      })}
     </>
   );
 };
