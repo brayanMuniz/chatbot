@@ -15,6 +15,9 @@ const openai = new OpenAIApi(configuration);
 interface ChatProps {}
 
 export function Chat({}: ChatProps) {
+  const userImageUrl = "/testImage2.jpg";
+  const assistantImageUrl = "/testImage.jpg";
+
   const [assistantIsTyping, setAssistantIsTyping] = useState(false);
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -116,17 +119,34 @@ export function Chat({}: ChatProps) {
         {conversation.messages.map((message, index) => (
           <div key={index} className="flex items-center text-lg">
             <p className="py-2">
-              {message.role === "user" ? "User" : "assistant "}:
-              {message.role === "assistant" ? (
-                message.content.split("\n").map((line, i) => (
-                  <React.Fragment key={i}>
-                    <RubyText text={line} tokenizer={tokenizer} />
-                    <br />
-                  </React.Fragment>
-                ))
-              ) : (
-                <RubyText text={message.content} tokenizer={tokenizer} />
-              )}
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <img
+                    src={message.role === "user" ? userImageUrl : assistantImageUrl}
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.onerror = null;
+                      target.src = "defaultIcon.png";
+                    }}
+                    alt={message.role === "user" ? "User" : "Assistant"}
+                    width="50"
+                    height="50"
+                  />
+                </div>
+
+                <div className="flex-grow">
+                  {message.role === "assistant" ? (
+                    message.content.split("\n").map((line, i) => (
+                      <React.Fragment key={i}>
+                        <RubyText text={line} tokenizer={tokenizer} />
+                        <br />
+                      </React.Fragment>
+                    ))
+                  ) : (
+                    <RubyText text={message.content} tokenizer={tokenizer} />
+                  )}
+                </div>
+              </div>
             </p>
           </div>
         ))}
@@ -136,6 +156,7 @@ export function Chat({}: ChatProps) {
         <div ref={bottomRef} />
       </div>
 
+      {/* Message  */}
       <div className="flex flex-col space-y-4">
         <input
           placeholder="Type a message..."
