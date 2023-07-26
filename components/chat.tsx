@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Conversation, Message, Role } from "@/types/chat";
 import kuromoji from "kuromoji";
 import RubyText from "./RubyText";
+import ErrorMessage from "./ErrorMessage";
 
 import { OpenAIApi, Configuration } from "openai";
 const configuration = new Configuration({
@@ -14,11 +15,18 @@ const openai = new OpenAIApi(configuration);
 interface ChatProps {}
 
 export function Chat({}: ChatProps) {
+  const [assistantIsTyping, setAssistantIsTyping] = useState(false);
+  const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [tokenizer, setTokenizer] =
     useState<kuromoji.Tokenizer<kuromoji.IpadicFeatures> | null>(null);
-  const [assistantIsTyping, setAssistantIsTyping] = useState(false);
+  const [conversation, setConversation] = React.useState<Conversation>({
+    messages: [],
+  });
+  const [message, setMessage] = React.useState("");
+  const bottomRef = React.useRef<HTMLDivElement>(null);
 
-  // Read dictionary and build tokenizer
+  // Initialize tokenizer
   useEffect(() => {
     kuromoji.builder({ dicPath: "/dict" }).build(function (err, builtTokenizer) {
       if (err) {
@@ -30,14 +38,6 @@ export function Chat({}: ChatProps) {
       setTokenizer(builtTokenizer);
     });
   }, []);
-
-  // Chat-history
-  const [conversation, setConversation] = React.useState<Conversation>({
-    messages: [],
-  });
-
-  // Chat-input
-  const [message, setMessage] = React.useState("");
 
   const handleMessageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(event.target.value);
@@ -51,25 +51,31 @@ export function Chat({}: ChatProps) {
       }));
 
       // Call OpenAI API
-      console.log("Calling OpenAI API, displaying response...");
       setAssistantIsTyping(true);
-      const response = await openai.createChatCompletion({
-        model: "gpt-3.5-turbo",
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are a helpful Japanese language learning assistant. The web client will automatically generate furigana for all kanji characters, so there is no need for you to provide pronunciation guidance.",
-          },
-          ...conversation.messages,
-          { role: "user", content: content },
-        ],
-      });
-
-      // Add the response to the conversation
-      console.log(response.data);
-      if (response.data.choices[0].message?.content)
-        handleNewMessage("assistant", response.data.choices[0].message?.content);
+      console.log("Calling OpenAI API, displaying response...");
+      await openai
+        .createChatCompletion({
+          model: "gpt-3.5-turbo",
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are a helpful Japanese language learning assistant. The web client will automatically generate furigana for all kanji characters, so there is no need for you to provide pronunciation guidance.",
+            },
+            ...conversation.messages,
+            { role: "user", content: content },
+          ],
+        })
+        .then((response) => {
+          console.log(response.data);
+          if (response.data.choices[0].message?.content)
+            handleNewMessage("assistant", response.data.choices[0].message?.content);
+        })
+        .catch((error) => {
+          console.log(error);
+          setError(true);
+          setErrorMessage(error.message);
+        });
     } else if (role === "assistant") {
       setAssistantIsTyping(true);
 
@@ -91,14 +97,13 @@ export function Chat({}: ChatProps) {
         if (i >= content.length - 1) {
           clearInterval(typingInterval);
         }
-      }, 30); // adjust the delay to control the typing speed
+      }, 20); // adjust the delay to control the typing speed
 
       setAssistantIsTyping(false);
     }
   };
 
   // Scroll to bottom when new message is added
-  const bottomRef = React.useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (bottomRef.current) {
       bottomRef.current.scrollIntoView({ behavior: "smooth" });
@@ -125,6 +130,9 @@ export function Chat({}: ChatProps) {
             </p>
           </div>
         ))}
+        {error ? <ErrorMessage message={errorMessage} /> : null}
+        {assistantIsTyping ? <div>Loading ...</div> : null}
+
         <div ref={bottomRef} />
       </div>
 
@@ -140,7 +148,7 @@ export function Chat({}: ChatProps) {
               setMessage("");
             }
           }}
-          disabled={assistantIsTyping}
+          disabled={assistantIsTyping || error}
           className="border p-2 bg-black text-white"
         />
       </div>
