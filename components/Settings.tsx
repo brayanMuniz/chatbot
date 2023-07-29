@@ -1,11 +1,16 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 interface SettingsProps {
   onApiKeySet: () => void;
 }
 
 export default function Settings({ onApiKeySet }: SettingsProps) {
-  const [apiKey, setApiKey] = useState(localStorage.getItem("apiKey") || "");
+  const [apiKey, setApiKey] = useState("");
+
+  useEffect(() => {
+    const apiKey: string | null = localStorage.getItem("systemPrompt");
+    if (apiKey !== null) setApiKey(apiKey);
+  }, []);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setApiKey(event.target.value);
