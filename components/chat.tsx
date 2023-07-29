@@ -17,9 +17,9 @@ export function Chat({}: ChatProps) {
   const assistantImageUrl = "/testImage.jpg";
 
   const [openai, setOpenai] = useState<OpenAIApi | null>(null);
-  const [systemPrompt, setSystemPrompt] = useState(
-    "You are a helpful Japanese language learning assistant. The web client will automatically generate furigana for all kanji characters, so there is no need for you to provide pronunciation guidance."
-  );
+  const defaultSystemPrompt =
+    "You are a helpful Japanese language learning assistant. The web client will automatically generate furigana for all kanji characters, so there is no need for you to provide pronunciation guidance.";
+  const [systemPrompt, setSystemPrompt] = useState(defaultSystemPrompt);
 
   const [assistantIsTyping, setAssistantIsTyping] = useState(false);
 
@@ -37,7 +37,7 @@ export function Chat({}: ChatProps) {
   const [message, setMessage] = React.useState("");
   const bottomRef = React.useRef<HTMLDivElement>(null);
 
-  // Initialize Open AI API, tokenizer, and previous conversation
+  // Initialize
   useEffect(() => {
     // Initialize Open AI API
     const apiKey: string | null = localStorage.getItem("apiKey");
@@ -72,6 +72,11 @@ export function Chat({}: ChatProps) {
     });
 
     // Initialize previous conversation
+    const savedConversation = localStorage.getItem("conversation");
+    if (savedConversation) {
+      console.log("Saved conversation: " + savedConversation);
+      setConversation({ messages: JSON.parse(savedConversation) });
+    }
   }, []);
 
   const handleMessageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -140,6 +145,11 @@ export function Chat({}: ChatProps) {
     }
   };
 
+  const clearChatHistory = () => {
+    localStorage.removeItem("conversation");
+    setConversation({ messages: [] });
+  };
+
   const handleSystemPromptSet = () => {
     const systemPrompt: string | null = localStorage.getItem("systemPrompt");
     if (systemPrompt !== null) {
@@ -170,13 +180,29 @@ export function Chat({}: ChatProps) {
     if (bottomRef.current) {
       bottomRef.current.scrollIntoView({ behavior: "smooth" });
     }
+
+    localStorage.setItem("conversation", JSON.stringify(conversation.messages));
   }, [conversation]);
 
   return (
     <>
       <div className="w-3/12">
-        <SystemPrompt onSystemPromptSet={handleSystemPromptSet} />
-        <Settings onApiKeySet={handleApiKeySet} />
+        <div className="flex flex-col space-y-4">
+          <div className="border-b pb-4">
+            <SystemPrompt onSystemPromptSet={handleSystemPromptSet} />
+          </div>
+          <div className="border-b pb-4">
+            <Settings onApiKeySet={handleApiKeySet} />
+          </div>
+          <div className="pb-4">
+            <button
+              onClick={clearChatHistory}
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            >
+              Clear Chat History
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="flex flex-col space-y-4 w-7/12">

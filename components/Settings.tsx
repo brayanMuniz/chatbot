@@ -19,7 +19,6 @@ export default function Settings({ onApiKeySet }: SettingsProps) {
 
   return (
     <div className="w-2/12">
-      <h2>Settings</h2>
       <label htmlFor="apiKey">API Key:</label>
       <input
         type="text"
