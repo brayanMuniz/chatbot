@@ -8,7 +8,7 @@ export default function Settings({ onApiKeySet }: SettingsProps) {
   const [apiKey, setApiKey] = useState("");
 
   useEffect(() => {
-    const apiKey: string | null = localStorage.getItem("systemPrompt");
+    const apiKey: string | null = localStorage.getItem("apiKey");
     if (apiKey !== null) setApiKey(apiKey);
   }, []);
 
