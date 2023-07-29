@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 interface SystemPromptProps {
   onSystemPromptSet: () => void;
@@ -7,10 +7,12 @@ interface SystemPromptProps {
 export default function SystemPrompt({ onSystemPromptSet }: SystemPromptProps) {
   const defaultSystemPrompt =
     "You are a helpful Japanese language learning assistant. The web client will automatically generate furigana for all kanji characters, so there is no need for you to provide pronunciation guidance.";
+  const [systemPrompt, setSystemPrompt] = useState(defaultSystemPrompt);
 
-  const [systemPrompt, setSystemPrompt] = useState(
-    localStorage.getItem("systemPrompt") || defaultSystemPrompt
-  );
+  useEffect(() => {
+    const systemPrompt: string | null = localStorage.getItem("systemPrompt");
+    if (systemPrompt !== null) setSystemPrompt(systemPrompt);
+  }, []);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setSystemPrompt(event.target.value);
