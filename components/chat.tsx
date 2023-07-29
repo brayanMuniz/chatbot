@@ -6,6 +6,7 @@ import kuromoji from "kuromoji";
 import RubyText from "./RubyText";
 import ErrorMessage from "./ErrorMessage";
 import Settings from "./Settings";
+import SystemPrompt from "./SystemPrompt";
 
 import { OpenAIApi, Configuration } from "openai";
 
@@ -16,18 +17,27 @@ export function Chat({}: ChatProps) {
   const assistantImageUrl = "/testImage.jpg";
 
   const [openai, setOpenai] = useState<OpenAIApi | null>(null);
+  const [systemPrompt, setSystemPrompt] = useState(
+    "You are a helpful Japanese language learning assistant. The web client will automatically generate furigana for all kanji characters, so there is no need for you to provide pronunciation guidance."
+  );
+
   const [assistantIsTyping, setAssistantIsTyping] = useState(false);
+
+  // Error handling
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
   const [tokenizer, setTokenizer] =
     useState<kuromoji.Tokenizer<kuromoji.IpadicFeatures> | null>(null);
+
   const [conversation, setConversation] = React.useState<Conversation>({
     messages: [],
   });
+
   const [message, setMessage] = React.useState("");
-  const [apiKeySet, setApiKeySet] = useState(false);
   const bottomRef = React.useRef<HTMLDivElement>(null);
 
+  // Initialize Open AI API, tokenizer, and previous conversation
   useEffect(() => {
     // Initialize Open AI API
     const apiKey: string | null = localStorage.getItem("apiKey");
@@ -45,6 +55,10 @@ export function Chat({}: ChatProps) {
     console.log("OpenAI API initialized");
     setOpenai(openai);
 
+    // Initialize System Prompt
+    const systemPrompt: string | null = localStorage.getItem("systemPrompt");
+    if (systemPrompt !== null) setSystemPrompt(systemPrompt);
+
     // Initialize tokenizer
     kuromoji.builder({ dicPath: "/dict" }).build(function (err, builtTokenizer) {
       if (err) {
@@ -56,6 +70,8 @@ export function Chat({}: ChatProps) {
       console.log("Tokenizer initialized");
       setTokenizer(builtTokenizer);
     });
+
+    // Initialize previous conversation
   }, []);
 
   const handleMessageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -65,6 +81,7 @@ export function Chat({}: ChatProps) {
   const handleNewMessage = async (role: Role, content: string) => {
     if (openai === null) return;
     if (tokenizer === null) return;
+
     if (role === "user") {
       const newMessage: Message = { role, content };
       setConversation((prevConversation) => ({
@@ -80,8 +97,7 @@ export function Chat({}: ChatProps) {
           messages: [
             {
               role: "system",
-              content:
-                "You are a helpful Japanese language learning assistant. The web client will automatically generate furigana for all kanji characters, so there is no need for you to provide pronunciation guidance.",
+              content: systemPrompt,
             },
             ...conversation.messages,
             { role: "user", content: content },
@@ -124,8 +140,15 @@ export function Chat({}: ChatProps) {
     }
   };
 
+  const handleSystemPromptSet = () => {
+    const systemPrompt: string | null = localStorage.getItem("systemPrompt");
+    if (systemPrompt !== null) {
+      console.log("System prompt set to: " + systemPrompt);
+      setSystemPrompt(systemPrompt);
+    }
+  };
+
   const handleApiKeySet = () => {
-    setApiKeySet(true);
     const apiKey: string | null = localStorage.getItem("apiKey");
     if (apiKey === null) {
       setError(true);
@@ -151,7 +174,11 @@ export function Chat({}: ChatProps) {
 
   return (
     <>
-      <Settings onApiKeySet={handleApiKeySet} />
+      <div className="w-3/12">
+        <SystemPrompt onSystemPromptSet={handleSystemPromptSet} />
+        <Settings onApiKeySet={handleApiKeySet} />
+      </div>
+
       <div className="flex flex-col space-y-4 w-7/12">
         <div className="flex flex-col space-y-2 overflow-auto h-[80vh]">
           {conversation.messages.map((message, index) => (
@@ -212,6 +239,7 @@ export function Chat({}: ChatProps) {
           />
         </div>
       </div>
+      <div className="w-2/12">Vocabulary</div>
     </>
   );
 }
