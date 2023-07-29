@@ -8,14 +8,14 @@ import ErrorMessage from "./ErrorMessage";
 import Settings from "./Settings";
 import SystemPrompt from "./SystemPrompt";
 
+import { faUser } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
 import { OpenAIApi, Configuration } from "openai";
 
 interface ChatProps {}
 
 export function Chat({}: ChatProps) {
-  const userImageUrl = "/testImage2.jpg";
-  const assistantImageUrl = "/testImage.jpg";
-
   const [openai, setOpenai] = useState<OpenAIApi | null>(null);
   const defaultSystemPrompt =
     "You are a helpful Japanese language learning assistant. The web client will automatically generate furigana for all kanji characters, so there is no need for you to provide pronunciation guidance.";
@@ -212,17 +212,7 @@ export function Chat({}: ChatProps) {
               <div className="py-2">
                 <div className="flex items-start">
                   <div className="flex-shrink-0">
-                    <img
-                      src={message.role === "user" ? userImageUrl : assistantImageUrl}
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.onerror = null;
-                        target.src = "defaultIcon.png";
-                      }}
-                      alt={message.role === "user" ? "User" : "Assistant"}
-                      width="50"
-                      height="50"
-                    />
+                    <FontAwesomeIcon icon={faUser} />
                   </div>
 
                   <div className="flex-grow">
