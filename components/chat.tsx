@@ -8,11 +8,11 @@ import { Conversation, Message, Role, defaultSystemPrompt } from "@/types/chat";
 import kuromoji from "kuromoji";
 
 // Components
-import RubyText from "./RubyText";
 import ErrorMessage from "./ErrorMessage";
 import Settings from "./Settings";
 import SystemPrompt from "./SystemPrompt";
 import MessageList from "./MessageList";
+import InputField from "./InputField";
 
 import { OpenAIApi, Configuration } from "openai";
 
@@ -214,21 +214,16 @@ export function Chat({}: ChatProps) {
           <div ref={bottomRef} />
         </div>
 
-        {/* Message  */}
         <div className="flex flex-col space-y-4">
-          <input
-            placeholder="Type a message..."
-            type="text"
-            value={message}
-            onChange={handleMessageChange}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" && message.trim() !== "") {
-                handleNewMessage("user", message);
-                setMessage("");
-              }
+          <InputField
+            message={message}
+            assistantIsTyping={assistantIsTyping}
+            error={error}
+            onMessageChange={handleMessageChange}
+            onEnterPress={(message) => {
+              handleNewMessage("user", message);
+              setMessage("");
             }}
-            disabled={assistantIsTyping || error}
-            className="border p-2 bg-black text-white"
           />
         </div>
       </div>
