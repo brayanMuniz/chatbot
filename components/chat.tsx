@@ -1,15 +1,18 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Conversation, Message, Role } from "@/types/chat";
+// Types
+import { Conversation, Message, Role, defaultSystemPrompt } from "@/types/chat";
+
+// Tokenizer
 import kuromoji from "kuromoji";
+
+// Components
 import RubyText from "./RubyText";
 import ErrorMessage from "./ErrorMessage";
 import Settings from "./Settings";
 import SystemPrompt from "./SystemPrompt";
-
-import { faUser } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import MessageList from "./MessageList";
 
 import { OpenAIApi, Configuration } from "openai";
 
@@ -17,8 +20,6 @@ interface ChatProps {}
 
 export function Chat({}: ChatProps) {
   const [openai, setOpenai] = useState<OpenAIApi | null>(null);
-  const defaultSystemPrompt =
-    "You are a helpful Japanese language learning assistant. The web client will automatically generate furigana for all kanji characters, so there is no need for you to provide pronunciation guidance.";
   const [systemPrompt, setSystemPrompt] = useState(defaultSystemPrompt);
 
   const [assistantIsTyping, setAssistantIsTyping] = useState(false);
@@ -207,33 +208,9 @@ export function Chat({}: ChatProps) {
 
       <div className="flex flex-col space-y-4 w-7/12">
         <div className="flex flex-col space-y-2 overflow-auto h-[80vh]">
-          {conversation.messages.map((message, index) => (
-            <div key={index} className="flex items-center text-lg">
-              <div className="py-2">
-                <div className="flex items-start">
-                  <div className="flex-shrink-0">
-                    <FontAwesomeIcon icon={faUser} />
-                  </div>
-
-                  <div className="flex-grow">
-                    {message.role === "assistant" ? (
-                      message.content.split("\n").map((line, i) => (
-                        <React.Fragment key={i}>
-                          <RubyText text={line} tokenizer={tokenizer} />
-                          <br />
-                        </React.Fragment>
-                      ))
-                    ) : (
-                      <RubyText text={message.content} tokenizer={tokenizer} />
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
+          <MessageList conversation={conversation} tokenizer={tokenizer} />
           {error ? <ErrorMessage message={errorMessage} /> : null}
           {assistantIsTyping ? <div>Loading ...</div> : null}
-
           <div ref={bottomRef} />
         </div>
 
@@ -255,6 +232,7 @@ export function Chat({}: ChatProps) {
           />
         </div>
       </div>
+
       <div className="w-2/12">Vocabulary</div>
     </>
   );

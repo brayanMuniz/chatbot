@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { defaultSystemPrompt } from "@/types/chat";
 
 interface SystemPromptProps {
   onSystemPromptSet: () => void;
 }
 
 export default function SystemPrompt({ onSystemPromptSet }: SystemPromptProps) {
-  const defaultSystemPrompt =
-    "You are a helpful Japanese language learning assistant. The web client will automatically generate furigana for all kanji characters, so there is no need for you to provide pronunciation guidance.";
   const [systemPrompt, setSystemPrompt] = useState(defaultSystemPrompt);
 
   useEffect(() => {
