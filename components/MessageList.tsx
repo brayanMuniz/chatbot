@@ -4,7 +4,7 @@ import { faUser } from "@fortawesome/free-solid-svg-icons";
 import RubyText from "./RubyText";
 import kuromoji from "kuromoji";
 import { Conversation } from "@/types/chat";
-import AssistantImage, { Emotion } from "./AssitantImage";
+import HelperImage, { Emotion } from "./HelperImage";
 
 interface MessageListProps {
   conversation: Conversation;
@@ -12,6 +12,27 @@ interface MessageListProps {
 }
 
 const MessageList: React.FC<MessageListProps> = ({ conversation, tokenizer }) => {
+  if (tokenizer === null) return null;
+
+  const parseContent = (content: string, messageIndex: number) => {
+    return content.split(/<Image emotion=(.*?)>/g).flatMap((part, index) => {
+      if (index % 2 !== 0) {
+        return (
+          <HelperImage
+            key={`image-${messageIndex}-${index}`}
+            emotion={part as Emotion}
+          />
+        );
+      }
+      return part.split("\n").map((line, i) => (
+        <React.Fragment key={`text-${messageIndex}-${index}-${i}`}>
+          <RubyText text={line} tokenizer={tokenizer} />
+          {line !== "" && <br />}
+        </React.Fragment>
+      ));
+    });
+  };
+
   return (
     <>
       {conversation.messages.map((message, index) => (
@@ -21,15 +42,9 @@ const MessageList: React.FC<MessageListProps> = ({ conversation, tokenizer }) =>
               <div className="flex-shrink-0">
                 <FontAwesomeIcon icon={faUser} className="mr-2" />
               </div>
-
               <div className="flex-grow">
                 {message.role === "assistant" ? (
-                  message.content.split("\n").map((line, i) => (
-                    <React.Fragment key={i}>
-                      <RubyText text={line} tokenizer={tokenizer} />
-                      <br />
-                    </React.Fragment>
-                  ))
+                  parseContent(message.content, index)
                 ) : (
                   <RubyText text={message.content} tokenizer={tokenizer} />
                 )}

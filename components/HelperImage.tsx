@@ -6,7 +6,7 @@ interface ImageProps {
   emotion: Emotion | null;
 }
 
-const AssistantImage: React.FC<ImageProps> = ({ emotion }) => {
+const HelperImage: React.FC<ImageProps> = ({ emotion }) => {
   if (emotion === null) {
     return null;
   }
@@ -14,4 +14,4 @@ const AssistantImage: React.FC<ImageProps> = ({ emotion }) => {
   return <img src={emotionLinks[emotion]} alt={emotion} />;
 };
 
-export default AssistantImage;
+export default HelperImage;
