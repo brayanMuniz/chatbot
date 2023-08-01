@@ -138,11 +138,10 @@ export function Chat({}: ChatProps) {
 
         i++;
         if (i >= content.length - 1) {
+          setAssistantIsTyping(false);
           clearInterval(typingInterval);
         }
-      }, 20); // adjust the delay to control the typing speed
-
-      setAssistantIsTyping(false);
+      }, 2); // adjust the delay to control the typing speed
     }
   };
 
@@ -188,7 +187,7 @@ export function Chat({}: ChatProps) {
   return (
     <>
       <div className="w-3/12">
-        <div className="flex flex-col space-y-4">
+        <div className="flex flex-col space-y-4 mr-2">
           <div className="border-b pb-4">
             <SystemPrompt onSystemPromptSet={handleSystemPromptSet} />
           </div>
@@ -206,11 +205,11 @@ export function Chat({}: ChatProps) {
         </div>
       </div>
 
-      <div className="flex flex-col space-y-4 w-7/12">
+      <div className="flex flex-col space-y-4 w-8/12">
         <div className="flex flex-col space-y-2 overflow-auto h-[80vh]">
           <MessageList conversation={conversation} tokenizer={tokenizer} />
           {error ? <ErrorMessage message={errorMessage} /> : null}
-          {assistantIsTyping ? <div>Loading ...</div> : null}
+          {assistantIsTyping && !error ? <div>Loading ...</div> : null}
           <div ref={bottomRef} />
         </div>
 
@@ -227,8 +226,6 @@ export function Chat({}: ChatProps) {
           />
         </div>
       </div>
-
-      <div className="w-2/12">Vocabulary</div>
     </>
   );
 }

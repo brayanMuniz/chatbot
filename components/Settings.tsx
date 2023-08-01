@@ -23,7 +23,7 @@ export default function Settings({ onApiKeySet }: SettingsProps) {
   };
 
   return (
-    <div className="w-2/12">
+    <div className="w-2/12 flex flex-row">
       <label htmlFor="apiKey">API Key:</label>
       <input
         type="text"
@@ -32,7 +32,12 @@ export default function Settings({ onApiKeySet }: SettingsProps) {
         onChange={handleInputChange}
         className="border p-2 bg-black text-white"
       />
-      <button onClick={handleSave}>Save</button>
+      <button
+        onClick={handleSave}
+        className=" ml-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+      >
+        Save
+      </button>
     </div>
   );
 }

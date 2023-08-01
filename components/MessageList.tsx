@@ -14,11 +14,11 @@ const MessageList: React.FC<MessageListProps> = ({ conversation, tokenizer }) =>
   return (
     <>
       {conversation.messages.map((message, index) => (
-        <div key={index} className="flex items-center text-lg">
+        <div key={index} className="flex items-center text-lg border-b p-2">
           <div className="py-2">
             <div className="flex items-start">
               <div className="flex-shrink-0">
-                <FontAwesomeIcon icon={faUser} />
+                <FontAwesomeIcon icon={faUser} className="mr-2" />
               </div>
 
               <div className="flex-grow">
