@@ -3,11 +3,15 @@ import { emotionLinks } from "@/referenceImages";
 export type Emotion = "hello" | "teasing" | "happy" | "surprised" | "disappointed";
 
 interface ImageProps {
-  emotion: Emotion;
+  emotion: Emotion | null;
 }
 
-const Image: React.FC<ImageProps> = ({ emotion }) => {
+const AssistantImage: React.FC<ImageProps> = ({ emotion }) => {
+  if (emotion === null) {
+    return null;
+  }
+
   return <img src={emotionLinks[emotion]} alt={emotion} />;
 };
 
-export default Image;
+export default AssistantImage;

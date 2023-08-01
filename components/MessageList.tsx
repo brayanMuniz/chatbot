@@ -4,6 +4,7 @@ import { faUser } from "@fortawesome/free-solid-svg-icons";
 import RubyText from "./RubyText";
 import kuromoji from "kuromoji";
 import { Conversation } from "@/types/chat";
+import AssistantImage, { Emotion } from "./AssitantImage";
 
 interface MessageListProps {
   conversation: Conversation;
