@@ -1,17 +1,12 @@
-import { emotionLinks } from "@/referenceImages";
-
-export type Emotion = "hello" | "teasing" | "happy" | "surprised" | "disappointed";
+import { AssistantImage } from "@/types/AssistantImage";
 
 interface ImageProps {
-  emotion: Emotion | null;
+  imageLinks: Record<AssistantImage, string>;
+  image: AssistantImage;
 }
 
-const HelperImage: React.FC<ImageProps> = ({ emotion }) => {
-  if (emotion === null) {
-    return null;
-  }
-
-  return <img src={emotionLinks[emotion]} alt={emotion} />;
+const HelperImage: React.FC<ImageProps> = ({ image, imageLinks }) => {
+  return <img src={imageLinks[image]} alt={image} />;
 };
 
 export default HelperImage;

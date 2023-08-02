@@ -1,10 +1,15 @@
 import React from "react";
+import { useState, useEffect } from "react";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
+
 import RubyText from "./RubyText";
 import kuromoji from "kuromoji";
+
+import HelperImage from "./HelperImage";
 import { Conversation } from "@/types/chat";
-import HelperImage, { Emotion } from "./HelperImage";
+import { AssistantImage, defaultLinks } from "@/types/AssistantImage";
 
 interface MessageListProps {
   conversation: Conversation;
@@ -12,6 +17,17 @@ interface MessageListProps {
 }
 
 const MessageList: React.FC<MessageListProps> = ({ conversation, tokenizer }) => {
+  const [savedImageLinks, setSavedImageLinks] =
+    useState<Record<AssistantImage, string>>(defaultLinks);
+
+  useEffect(() => {
+    const imagesString = localStorage.getItem("savedImageLinks");
+    if (imagesString) {
+      const images = JSON.parse(imagesString) as Record<AssistantImage, string>;
+      setSavedImageLinks(images);
+    }
+  }, []);
+
   if (tokenizer === null) return null;
 
   const parseContent = (content: string, messageIndex: number) => {
@@ -20,7 +36,8 @@ const MessageList: React.FC<MessageListProps> = ({ conversation, tokenizer }) =>
         return (
           <HelperImage
             key={`image-${messageIndex}-${index}`}
-            emotion={part as Emotion}
+            image={part as AssistantImage}
+            imageLinks={savedImageLinks}
           />
         );
       }
