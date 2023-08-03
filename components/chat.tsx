@@ -36,6 +36,9 @@ export function Chat({}: ChatProps) {
   });
 
   const [message, setMessage] = React.useState("");
+
+  const [openModal, setOpenModal] = useState(false);
+
   const bottomRef = React.useRef<HTMLDivElement>(null);
 
   // Initialize
@@ -189,7 +192,17 @@ export function Chat({}: ChatProps) {
       <div className="w-3/12">
         <div className="flex flex-col space-y-4 mr-2">
           <div className="border-b pb-4">
-            <SystemPrompt onSystemPromptSet={handleSystemPromptSet} />
+            <button
+              onClick={() => setOpenModal(true)}
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-2"
+            >
+              Edit System Prompt
+            </button>
+            <SystemPrompt
+              onSystemPromptSet={handleSystemPromptSet}
+              open={openModal}
+              setOpen={setOpenModal}
+            />
           </div>
           <div className="border-b pb-4">
             <Settings onApiKeySet={handleApiKeySet} />
