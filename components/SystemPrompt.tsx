@@ -87,7 +87,7 @@ export default function SystemPrompt({
                     id="systemPrompt"
                     value={systemPrompt}
                     onChange={handleInputChange}
-                    className="border p-2 bg-black text-white w-full h-40 flex-grow"
+                    className="border p-2 bg-black text-white w-full h-60 flex-grow"
                   />
                 </div>
               </div>
@@ -103,7 +103,7 @@ export default function SystemPrompt({
                     id="customPrompt"
                     value={customPrompt}
                     onChange={(e) => setCustomPrompt(e.target.value)}
-                    className="border p-2 bg-black text-white w-full h-40 flex-grow"
+                    className="border p-2 bg-black text-white w-full h-60 flex-grow"
                   />
                 </div>
               </div>

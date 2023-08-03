@@ -13,6 +13,7 @@ import Settings from "./Settings";
 import SystemPrompt from "./SystemPrompt";
 import MessageList from "./MessageList";
 import InputField from "./InputField";
+import EmotionModal from "./EmotionModal";
 
 import { OpenAIApi, Configuration } from "openai";
 
@@ -34,6 +35,8 @@ export function Chat({}: ChatProps) {
   const [conversation, setConversation] = React.useState<Conversation>({
     messages: [],
   });
+
+  const [openEmotionModal, setOpenEmotionModal] = useState(false);
 
   const [message, setMessage] = React.useState("");
 
@@ -202,6 +205,16 @@ export function Chat({}: ChatProps) {
               onSystemPromptSet={handleSystemPromptSet}
               open={openModal}
               setOpen={setOpenModal}
+            />
+            <button
+              onClick={() => setOpenEmotionModal(true)}
+              className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mb-2"
+            >
+              Edit Emotions & Expressions
+            </button>
+            <EmotionModal
+              isOpen={openEmotionModal}
+              onClose={() => setOpenEmotionModal(false)}
             />
           </div>
           <div className="border-b pb-4">
