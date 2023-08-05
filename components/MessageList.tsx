@@ -20,6 +20,8 @@ const MessageList: React.FC<MessageListProps> = ({ conversation, tokenizer }) =>
   const [savedImageLinks, setSavedImageLinks] =
     useState<Record<AssistantImage, string>>(defaultLinks);
 
+  const bottomRef = React.useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const imagesString = localStorage.getItem("savedImageLinks");
     if (imagesString) {
@@ -27,6 +29,15 @@ const MessageList: React.FC<MessageListProps> = ({ conversation, tokenizer }) =>
       setSavedImageLinks(images);
     }
   }, []);
+
+  // Scroll to bottom when new message is added
+  useEffect(() => {
+    if (bottomRef.current) {
+      bottomRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+
+    localStorage.setItem("conversation", JSON.stringify(conversation.messages));
+  }, [conversation]);
 
   if (tokenizer === null) return null;
 
@@ -70,6 +81,7 @@ const MessageList: React.FC<MessageListProps> = ({ conversation, tokenizer }) =>
           </div>
         </div>
       ))}
+      <div ref={bottomRef} />
     </>
   );
 };

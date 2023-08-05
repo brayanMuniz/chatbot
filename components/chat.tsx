@@ -25,7 +25,6 @@ export function Chat({}: ChatProps) {
 
   const [assistantIsTyping, setAssistantIsTyping] = useState(false);
 
-  // Error handling
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -36,17 +35,14 @@ export function Chat({}: ChatProps) {
     messages: [],
   });
 
-  const [openEmotionModal, setOpenEmotionModal] = useState(false);
-
   const [message, setMessage] = React.useState("");
 
-  const [openModal, setOpenModal] = useState(false);
-
-  const bottomRef = React.useRef<HTMLDivElement>(null);
+  const [openPromptModal, setPromptModal] = useState(false);
+  const [openEmotionModal, setOpenEmotionModal] = useState(false);
 
   // Initialize
   useEffect(() => {
-    // Initialize Open AI API
+    // Open AI API
     const apiKey: string | null = localStorage.getItem("apiKey");
     if (apiKey === null) {
       setError(true);
@@ -62,23 +58,22 @@ export function Chat({}: ChatProps) {
     console.log("OpenAI API initialized");
     setOpenai(openai);
 
-    // Initialize System Prompt
+    // System Prompt
     const systemPrompt: string | null = localStorage.getItem("systemPrompt");
     if (systemPrompt !== null) setSystemPrompt(systemPrompt);
 
-    // Initialize tokenizer
+    // Tokenizer
     kuromoji.builder({ dicPath: "/dict" }).build(function (err, builtTokenizer) {
       if (err) {
         console.log(err);
         return;
       }
 
-      // Save the built tokenizer
       console.log("Tokenizer initialized");
       setTokenizer(builtTokenizer);
     });
 
-    // Initialize previous conversation
+    // Previous conversation
     const savedConversation = localStorage.getItem("conversation");
     if (savedConversation) {
       console.log("Saved conversation: " + savedConversation);
@@ -147,7 +142,7 @@ export function Chat({}: ChatProps) {
           setAssistantIsTyping(false);
           clearInterval(typingInterval);
         }
-      }, 2); // adjust the delay to control the typing speed
+      }, 1);
     }
   };
 
@@ -181,30 +176,21 @@ export function Chat({}: ChatProps) {
     setError(false);
   };
 
-  // Scroll to bottom when new message is added
-  useEffect(() => {
-    if (bottomRef.current) {
-      bottomRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-
-    localStorage.setItem("conversation", JSON.stringify(conversation.messages));
-  }, [conversation]);
-
   return (
     <>
       <div className="w-3/12">
         <div className="flex flex-col space-y-4 mr-2">
           <div className="border-b pb-4">
             <button
-              onClick={() => setOpenModal(true)}
+              onClick={() => setPromptModal(true)}
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-2"
             >
               Edit System Prompt
             </button>
             <SystemPrompt
               onSystemPromptSet={handleSystemPromptSet}
-              open={openModal}
-              setOpen={setOpenModal}
+              open={openPromptModal}
+              setOpen={setPromptModal}
             />
             <button
               onClick={() => setOpenEmotionModal(true)}
@@ -236,7 +222,6 @@ export function Chat({}: ChatProps) {
           <MessageList conversation={conversation} tokenizer={tokenizer} />
           {error ? <ErrorMessage message={errorMessage} /> : null}
           {assistantIsTyping && !error ? <div>Loading ...</div> : null}
-          <div ref={bottomRef} />
         </div>
 
         <div className="flex flex-col space-y-4">
