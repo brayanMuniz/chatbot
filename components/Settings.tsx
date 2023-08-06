@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
+import { OpenAIApi, Configuration } from "openai";
 
 interface SettingsProps {
-  onApiKeySet: () => void;
+  onApiKeySet: (openai: OpenAIApi) => void;
+  onError: (error: boolean) => void;
 }
 
-export default function Settings({ onApiKeySet }: SettingsProps) {
+export default function Settings({ onApiKeySet, onError }: SettingsProps) {
   const [apiKey, setApiKey] = useState("");
 
   useEffect(() => {
@@ -17,9 +19,19 @@ export default function Settings({ onApiKeySet }: SettingsProps) {
   };
 
   const handleSave = () => {
+    if (apiKey === "") {
+      onError(true);
+      alert("API Key not found. Please enter your API Key in the Settings panel.");
+      return;
+    }
     localStorage.setItem("apiKey", apiKey);
+    const configuration = new Configuration({
+      apiKey: apiKey,
+    });
+    const openai = new OpenAIApi(configuration);
+    onApiKeySet(openai);
+    onError(false);
     alert("API Key saved!");
-    onApiKeySet(); // Call the onApiKeySet function after the API key is saved
   };
 
   return (

@@ -5,7 +5,7 @@ import { faRedo } from "@fortawesome/free-solid-svg-icons";
 import { defaultSystemPrompt } from "@/types/chat";
 
 interface SystemPromptProps {
-  onSystemPromptSet: () => void;
+  onSystemPromptSet: (systemPrompt: string) => void;
   open: boolean;
   setOpen: (open: boolean) => void;
 }
@@ -31,7 +31,7 @@ export default function SystemPrompt({
   const handleSave = () => {
     localStorage.setItem("systemPrompt", systemPrompt);
     alert("System prompt saved!");
-    onSystemPromptSet();
+    onSystemPromptSet(systemPrompt);
     setOpen(false);
   };
 
@@ -39,10 +39,9 @@ export default function SystemPrompt({
     setSystemPrompt(defaultSystemPrompt);
     localStorage.setItem("systemPrompt", defaultSystemPrompt);
     alert("System prompt reset!");
-    onSystemPromptSet();
+    onSystemPromptSet(defaultSystemPrompt);
     setOpen(false);
   };
-
   return (
     <Transition.Root show={open} as={Fragment}>
       <Dialog

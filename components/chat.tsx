@@ -151,31 +151,6 @@ export function Chat({}: ChatProps) {
     setConversation({ messages: [] });
   };
 
-  const handleSystemPromptSet = () => {
-    const systemPrompt: string | null = localStorage.getItem("systemPrompt");
-    if (systemPrompt !== null) {
-      console.log("System prompt set to: " + systemPrompt);
-      setSystemPrompt(systemPrompt);
-    }
-  };
-
-  const handleApiKeySet = () => {
-    const apiKey: string | null = localStorage.getItem("apiKey");
-    if (apiKey === null) {
-      setError(true);
-      setErrorMessage(
-        "API Key not found. Please enter your API Key in the Settings panel."
-      );
-      return;
-    }
-    const configuration = new Configuration({
-      apiKey: apiKey,
-    });
-    const openai = new OpenAIApi(configuration);
-    setOpenai(openai);
-    setError(false);
-  };
-
   return (
     <>
       <div className="w-3/12">
@@ -188,10 +163,11 @@ export function Chat({}: ChatProps) {
               Edit System Prompt
             </button>
             <SystemPrompt
-              onSystemPromptSet={handleSystemPromptSet}
+              onSystemPromptSet={setSystemPrompt}
               open={openPromptModal}
               setOpen={setPromptModal}
             />
+
             <button
               onClick={() => setOpenEmotionModal(true)}
               className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mb-2"
@@ -204,7 +180,7 @@ export function Chat({}: ChatProps) {
             />
           </div>
           <div className="border-b pb-4">
-            <Settings onApiKeySet={handleApiKeySet} />
+            <Settings onApiKeySet={setOpenai} onError={setError} />
           </div>
           <div className="pb-4">
             <button
