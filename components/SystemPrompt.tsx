@@ -15,33 +15,35 @@ export default function SystemPrompt({
   open,
   setOpen,
 }: SystemPromptProps) {
-  const [systemPrompt, setSystemPrompt] = useState(defaultSystemPrompt);
   const [customPrompt, setCustomPrompt] = useState("");
   const cancelButtonRef = useRef(null);
 
   useEffect(() => {
-    const systemPrompt: string | null = localStorage.getItem("systemPrompt");
-    if (systemPrompt !== null) setSystemPrompt(systemPrompt);
+    const customPrompt: string | null = localStorage.getItem("customPrompt");
+    if (customPrompt !== null) setCustomPrompt(customPrompt);
   }, []);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setSystemPrompt(event.target.value);
+    setCustomPrompt(event.target.value);
   };
 
   const handleSave = () => {
-    localStorage.setItem("systemPrompt", systemPrompt);
-    alert("System prompt saved!");
-    onSystemPromptSet(systemPrompt);
+    localStorage.setItem("customPrompt", customPrompt);
+    alert("Custom prompt saved!");
+    const totalPrompt = defaultSystemPrompt + customPrompt;
+    console.log(totalPrompt);
+    onSystemPromptSet(totalPrompt);
     setOpen(false);
   };
 
   const handleReset = () => {
-    setSystemPrompt(defaultSystemPrompt);
-    localStorage.setItem("systemPrompt", defaultSystemPrompt);
-    alert("System prompt reset!");
+    setCustomPrompt("");
+    localStorage.setItem("customPrompt", "");
+    alert("Custom prompt reset!");
     onSystemPromptSet(defaultSystemPrompt);
     setOpen(false);
   };
+
   return (
     <Transition.Root show={open} as={Fragment}>
       <Dialog
@@ -61,37 +63,8 @@ export default function SystemPrompt({
             leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
           >
             <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-              {/* Default System Prompt */}
-              <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
-                <div className="flex flex-row">
-                  <label htmlFor="systemPrompt" className="block">
-                    System Prompt:
-                  </label>
-                  <button
-                    onClick={handleReset}
-                    className="ml-2 text-blue-500 hover:text-blue-700"
-                  >
-                    <FontAwesomeIcon icon={faRedo} />
-                  </button>
-                  <button
-                    onClick={handleSave}
-                    className="ml-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                  >
-                    Save
-                  </button>
-                </div>
-
-                <div className="flex justify-between items-center">
-                  <textarea
-                    id="systemPrompt"
-                    value={systemPrompt}
-                    onChange={handleInputChange}
-                    className="border p-2 bg-black text-white w-full h-60 flex-grow"
-                  />
-                </div>
-              </div>
               {/* Custom Prompt */}
-              <div className="bg-gray-100 px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+              <div className="bg-gray-500 px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
                 <div className="flex flex-row">
                   <label htmlFor="customPrompt" className="block">
                     Custom Prompt:
@@ -101,11 +74,23 @@ export default function SystemPrompt({
                   <textarea
                     id="customPrompt"
                     value={customPrompt}
-                    onChange={(e) => setCustomPrompt(e.target.value)}
+                    onChange={handleInputChange}
                     className="border p-2 bg-black text-white w-full h-60 flex-grow"
                   />
                 </div>
               </div>
+              <button
+                onClick={handleReset}
+                className="ml-2 text-blue-500 hover:text-blue-700"
+              >
+                <FontAwesomeIcon icon={faRedo} />
+              </button>
+              <button
+                onClick={handleSave}
+                className="ml-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              >
+                Save
+              </button>
 
               <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
                 <button
