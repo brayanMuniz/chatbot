@@ -40,6 +40,22 @@ export function Chat({}: ChatProps) {
   const [openPromptModal, setPromptModal] = useState(false);
   const [openEmotionModal, setOpenEmotionModal] = useState(false);
 
+  const [emotionLinks, setEmotionLinks] = useState(() => {
+    const links = localStorage.getItem("savedImageLinks");
+    return links ? JSON.parse(links) : {};
+  });
+
+  function getTotalPrompt(): string {
+    let totalPrompt = systemPrompt;
+    totalPrompt +=
+      "\n\nYou are also able to express emotions and greeting simply by typing <Image emotion=emotionName>. It is encouraged to use emotions and expressions. Here are the available emotions:\n";
+    for (const [key, value] of Object.entries(emotionLinks)) {
+      totalPrompt += `${key}, `;
+    }
+    console.log(totalPrompt);
+    return totalPrompt;
+  }
+
   // Initialize
   useEffect(() => {
     // Open AI API
@@ -104,7 +120,7 @@ export function Chat({}: ChatProps) {
           messages: [
             {
               role: "system",
-              content: systemPrompt,
+              content: getTotalPrompt(),
             },
             ...conversation.messages,
             { role: "user", content: content },
@@ -121,6 +137,8 @@ export function Chat({}: ChatProps) {
           setErrorMessage(error.message);
         });
     } else if (role === "assistant") {
+      localStorage.setItem("conversation", JSON.stringify(conversation.messages));
+
       setAssistantIsTyping(true);
 
       // Add an empty message
@@ -177,6 +195,7 @@ export function Chat({}: ChatProps) {
             <EmotionModal
               isOpen={openEmotionModal}
               onClose={() => setOpenEmotionModal(false)}
+              onEmotionLinksSet={setEmotionLinks}
             />
           </div>
           <div className="border-b pb-4">

@@ -35,8 +35,6 @@ const MessageList: React.FC<MessageListProps> = ({ conversation, tokenizer }) =>
     if (bottomRef.current) {
       bottomRef.current.scrollIntoView({ behavior: "smooth" });
     }
-
-    localStorage.setItem("conversation", JSON.stringify(conversation.messages));
   }, [conversation]);
 
   if (tokenizer === null) return null;
