@@ -40,45 +40,57 @@ const MessageList: React.FC<MessageListProps> = ({ conversation, tokenizer }) =>
   if (tokenizer === null) return null;
 
   const parseContent = (content: string, messageIndex: number) => {
-    return content.split(/<Image emotion=(.*?)>/g).flatMap((part, index) => {
+    const textParts: JSX.Element[] = [];
+    const images: JSX.Element[] = [];
+
+    content.split(/<Image emotion=(.*?)>/g).forEach((part, index) => {
       if (index % 2 !== 0) {
-        return (
+        images.push(
           <HelperImage
             key={`image-${messageIndex}-${index}`}
             image={part as AssistantImage}
             imageLinks={savedImageLinks}
           />
         );
+      } else {
+        part.split("\n").forEach((line, i) => {
+          textParts.push(
+            <React.Fragment key={`text-${messageIndex}-${index}-${i}`}>
+              <RubyText text={line} tokenizer={tokenizer} />
+              {line !== "" && <br />}
+            </React.Fragment>
+          );
+        });
       }
-      return part.split("\n").map((line, i) => (
-        <React.Fragment key={`text-${messageIndex}-${index}-${i}`}>
-          <RubyText text={line} tokenizer={tokenizer} />
-          {line !== "" && <br />}
-        </React.Fragment>
-      ));
     });
+
+    return { textParts, images };
   };
 
   return (
     <>
-      {conversation.messages.map((message, index) => (
-        <div key={index} className="flex items-center text-lg border-b p-2">
-          <div className="py-2">
-            <div className="flex items-start">
-              <div className="flex-shrink-0">
-                <FontAwesomeIcon icon={faUser} className="mr-2" />
-              </div>
-              <div className="flex-grow">
-                {message.role === "assistant" ? (
-                  parseContent(message.content, index)
-                ) : (
-                  <RubyText text={message.content} tokenizer={tokenizer} />
-                )}
+      {conversation.messages.map((message, index) => {
+        const { textParts, images } = parseContent(message.content, index);
+        return (
+          <div key={index} className="flex items-center text-lg border-b p-2">
+            <div className="py-2 flex-grow">
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <FontAwesomeIcon icon={faUser} className="mr-2" />
+                </div>
+                <div className="flex-grow">{textParts}</div>
               </div>
             </div>
+            {images.length > 0 && (
+              <div className="ml-4">
+                {images.map((image) => (
+                  <div key={image.key}>{image}</div>
+                ))}
+              </div>
+            )}
           </div>
-        </div>
-      ))}
+        );
+      })}
       <div ref={bottomRef} />
     </>
   );

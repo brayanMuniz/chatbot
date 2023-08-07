@@ -50,7 +50,7 @@ export function Chat({}: ChatProps) {
     let totalPrompt = defaultSystemPrompt;
 
     totalPrompt +=
-      "\n\nYou are also able to express emotions and greeting simply by typing <Image emotion=emotionName>. It is encouraged to use emotions and expressions. Here are the available emotions: ";
+      "\n\nYou are also able to express emotions and greeting simply by typing <Image emotion=emotionName>. It is encouraged to use emotions and expressions. This is the emotionName list: ";
     for (const [key, value] of Object.entries(emotionLinks)) {
       totalPrompt += `${key}, `;
     }
@@ -154,30 +154,13 @@ export function Chat({}: ChatProps) {
       }
     } else if (role === "assistant") {
       setAssistantIsTyping(true);
-
       // Add the assistant's message and save it to local storage
       setConversation((prevConversation) => {
         const updatedMessages = [...prevConversation.messages, newMessage];
-        // Save the updated conversation to local storage
         localStorage.setItem("conversation", JSON.stringify(updatedMessages));
         return { messages: updatedMessages };
       });
-
-      // Type out the message one character at a time
-      let i = 0;
-      const typingInterval = setInterval(() => {
-        setConversation((prevConversation) => {
-          const messages = [...prevConversation.messages];
-          messages[messages.length - 1].content += content[i];
-          return { messages };
-        });
-
-        i++;
-        if (i >= content.length - 1) {
-          setAssistantIsTyping(false);
-          clearInterval(typingInterval);
-        }
-      }, 40);
+      setAssistantIsTyping(false);
     }
   };
 
