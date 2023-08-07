@@ -21,7 +21,7 @@ interface ChatProps {}
 
 export function Chat({}: ChatProps) {
   const [openai, setOpenai] = useState<OpenAIApi | null>(null);
-  const [systemPrompt, setSystemPrompt] = useState(defaultSystemPrompt);
+  const [customPrompt, setCustomPrompt] = useState("");
 
   const [assistantIsTyping, setAssistantIsTyping] = useState(false);
 
@@ -47,7 +47,7 @@ export function Chat({}: ChatProps) {
   });
 
   function getTotalPrompt(): string {
-    let totalPrompt = systemPrompt;
+    let totalPrompt = defaultSystemPrompt;
 
     totalPrompt +=
       "\n\nYou are also able to express emotions and greeting simply by typing <Image emotion=emotionName>. It is encouraged to use emotions and expressions. Here are the available emotions: ";
@@ -62,7 +62,6 @@ export function Chat({}: ChatProps) {
         "\n\nHere is what the user says about themselves: " + customPrompt;
     }
 
-    console.log("totalPrompt: ", totalPrompt);
     return totalPrompt;
   }
 
@@ -85,8 +84,11 @@ export function Chat({}: ChatProps) {
     setOpenai(openai);
 
     // System Prompt
-    const systemPrompt: string | null = localStorage.getItem("systemPrompt");
-    if (systemPrompt !== null) setSystemPrompt(systemPrompt);
+    const customPrompt: string | null = localStorage.getItem("customPrompt");
+    if (customPrompt !== null) {
+      console.log("Using Saved Custom Prompt");
+      setCustomPrompt(customPrompt);
+    }
 
     // Tokenizer
     kuromoji.builder({ dicPath: "/dict" }).build(function (err, builtTokenizer) {
@@ -100,11 +102,13 @@ export function Chat({}: ChatProps) {
     });
 
     // Previous conversation
-    const savedConversation = localStorage.getItem("conversation");
-    if (savedConversation) {
+    const savedConversation: string | null = localStorage.getItem("conversation");
+    if (savedConversation !== null) {
       console.log("Using Saved Conversation");
       setConversation({ messages: JSON.parse(savedConversation) });
     }
+
+    console.log(getTotalPrompt());
   }, []);
 
   const handleMessageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -112,20 +116,23 @@ export function Chat({}: ChatProps) {
   };
 
   const handleNewMessage = async (role: Role, content: string) => {
-    if (openai === null) return;
-    if (tokenizer === null) return;
+    if (!openai || !tokenizer) return;
+
+    const newMessage: Message = { role, content };
 
     if (role === "user") {
-      const newMessage: Message = { role, content };
-      setConversation((prevConversation) => ({
-        messages: [...prevConversation.messages, newMessage],
-      }));
+      // Set the user's message and save it to local storage
+      setConversation((prevConversation) => {
+        const updatedMessages = [...prevConversation.messages, newMessage];
+        // Save the updated conversation to local storage
+        localStorage.setItem("conversation", JSON.stringify(updatedMessages));
+        return { messages: updatedMessages };
+      });
 
       // Call OpenAI API
       setAssistantIsTyping(true);
-      console.log("Calling OpenAI API, displaying response...");
-      await openai
-        .createChatCompletion({
+      try {
+        const response = await openai.createChatCompletion({
           model: "gpt-3.5-turbo",
           messages: [
             {
@@ -133,28 +140,28 @@ export function Chat({}: ChatProps) {
               content: getTotalPrompt(),
             },
             ...conversation.messages,
-            { role: "user", content: content },
+            newMessage,
           ],
-        })
-        .then((response) => {
-          console.log(response.data);
-          if (response.data.choices[0].message?.content)
-            handleNewMessage("assistant", response.data.choices[0].message?.content);
-        })
-        .catch((error) => {
-          console.log(error);
-          setError(true);
-          setErrorMessage(error.message);
         });
-    } else if (role === "assistant") {
-      localStorage.setItem("conversation", JSON.stringify(conversation.messages));
 
+        if (response.data.choices[0].message?.content) {
+          handleNewMessage("assistant", response.data.choices[0].message.content);
+        }
+      } catch (error) {
+        console.error(error);
+        setError(true);
+        setErrorMessage("Problem with OpenAI API. Please try again later.");
+      }
+    } else if (role === "assistant") {
       setAssistantIsTyping(true);
 
-      // Add an empty message
-      setConversation((prevConversation) => ({
-        messages: [...prevConversation.messages, { role, content: content[0] }],
-      }));
+      // Add the assistant's message and save it to local storage
+      setConversation((prevConversation) => {
+        const updatedMessages = [...prevConversation.messages, newMessage];
+        // Save the updated conversation to local storage
+        localStorage.setItem("conversation", JSON.stringify(updatedMessages));
+        return { messages: updatedMessages };
+      });
 
       // Type out the message one character at a time
       let i = 0;
@@ -170,11 +177,12 @@ export function Chat({}: ChatProps) {
           setAssistantIsTyping(false);
           clearInterval(typingInterval);
         }
-      }, 1);
+      }, 40);
     }
   };
 
   const clearChatHistory = () => {
+    console.log("Clearing chat history...");
     localStorage.removeItem("conversation");
     setConversation({ messages: [] });
   };
@@ -191,7 +199,7 @@ export function Chat({}: ChatProps) {
               Edit System Prompt
             </button>
             <SystemPrompt
-              onSystemPromptSet={setSystemPrompt}
+              onSystemPromptSet={setCustomPrompt}
               open={openPromptModal}
               setOpen={setPromptModal}
             />
