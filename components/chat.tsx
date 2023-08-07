@@ -92,7 +92,7 @@ export function Chat({}: ChatProps) {
     // Previous conversation
     const savedConversation = localStorage.getItem("conversation");
     if (savedConversation) {
-      console.log("Saved conversation: " + savedConversation);
+      console.log("Using Saved Conversation");
       setConversation({ messages: JSON.parse(savedConversation) });
     }
   }, []);
