@@ -59,12 +59,6 @@ const EmotionModal: React.FC<EmotionModalProps> = ({
     localStorage.setItem("savedImageLinks", JSON.stringify(updatedEmotionLinks));
   };
 
-  const handleSave = () => {
-    localStorage.setItem("savedImageLinks", JSON.stringify(emotionLinks));
-    onEmotionLinksSet(emotionLinks);
-    onClose();
-  };
-
   const handleAddEmotion = () => {
     if (newEmotionName && newEmotionUrl) {
       handleImageLinkChange(newEmotionName, newEmotionUrl);

@@ -37,6 +37,7 @@ export function Chat({}: ChatProps) {
 
   const [message, setMessage] = React.useState("");
 
+  // Modal States
   const [openPromptModal, setPromptModal] = useState(false);
   const [openEmotionModal, setOpenEmotionModal] = useState(false);
 
@@ -47,12 +48,21 @@ export function Chat({}: ChatProps) {
 
   function getTotalPrompt(): string {
     let totalPrompt = systemPrompt;
+
     totalPrompt +=
-      "\n\nYou are also able to express emotions and greeting simply by typing <Image emotion=emotionName>. It is encouraged to use emotions and expressions. Here are the available emotions:\n";
+      "\n\nYou are also able to express emotions and greeting simply by typing <Image emotion=emotionName>. It is encouraged to use emotions and expressions. Here are the available emotions: ";
     for (const [key, value] of Object.entries(emotionLinks)) {
       totalPrompt += `${key}, `;
     }
-    console.log(totalPrompt);
+
+    // if custom prompt in local storage, add it to the prompt
+    const customPrompt = localStorage.getItem("customPrompt");
+    if (customPrompt) {
+      totalPrompt +=
+        "\n\nHere is what the user says about themselves: " + customPrompt;
+    }
+
+    console.log("totalPrompt: ", totalPrompt);
     return totalPrompt;
   }
 
