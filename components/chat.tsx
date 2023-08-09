@@ -48,6 +48,9 @@ export function Chat({}: ChatProps) {
 
     totalPrompt +=
       "\n\nYou are also able to express emotions and greeting simply by typing <Image emotion=emotionName>. It is encouraged to use emotions and expressions. This is the emotionName list: ";
+    const links = localStorage.getItem("savedImageLinks");
+    if (links) setEmotionLinks(JSON.parse(links));
+
     for (const [key, value] of Object.entries(emotionLinks)) {
       totalPrompt += `${key}, `;
     }
