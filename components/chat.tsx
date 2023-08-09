@@ -41,10 +41,7 @@ export function Chat({}: ChatProps) {
   const [openPromptModal, setPromptModal] = useState(false);
   const [openEmotionModal, setOpenEmotionModal] = useState(false);
 
-  const [emotionLinks, setEmotionLinks] = useState(() => {
-    const links = localStorage.getItem("savedImageLinks");
-    return links ? JSON.parse(links) : {};
-  });
+  const [emotionLinks, setEmotionLinks] = useState({});
 
   function getTotalPrompt(): string {
     let totalPrompt = defaultSystemPrompt;
@@ -106,6 +103,12 @@ export function Chat({}: ChatProps) {
     if (savedConversation !== null) {
       console.log("Using Saved Conversation");
       setConversation({ messages: JSON.parse(savedConversation) });
+    }
+
+    // Retrieve emotion links from local storage
+    const links = localStorage.getItem("savedImageLinks");
+    if (links) {
+      setEmotionLinks(JSON.parse(links));
     }
 
     console.log(getTotalPrompt());
