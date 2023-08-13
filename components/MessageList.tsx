@@ -72,7 +72,12 @@ const MessageList: React.FC<MessageListProps> = ({ conversation, tokenizer }) =>
       {conversation.messages.map((message, index) => {
         const { textParts, images } = parseContent(message.content, index);
         return (
-          <div key={index} className="flex items-center text-lg border-b p-2">
+          <div
+            key={index}
+            className={`flex items-center text-lg p-2 ${
+              message.role === "user" ? "bg-user-background" : ""
+            }`}
+          >
             <div className="py-2 flex-grow">
               <div className="flex items-start">
                 <div className="flex-shrink-0">

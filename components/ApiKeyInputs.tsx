@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { OpenAIApi, Configuration } from "openai";
+import { KeyIcon } from "@heroicons/react/24/outline";
 
-interface SettingsProps {
+interface ApiKeyInputsProps {
   onApiKeySet: (openai: OpenAIApi) => void;
   onError: (error: boolean) => void;
 }
 
-export default function Settings({ onApiKeySet, onError }: SettingsProps) {
+export default function ApiKeyInputs({ onApiKeySet, onError }: ApiKeyInputsProps) {
   const [apiKey, setApiKey] = useState("");
+  const isValidKey = apiKey.length > 0; // Todo: check if valid key
 
   useEffect(() => {
     const apiKey: string | null = localStorage.getItem("apiKey");
@@ -35,18 +37,20 @@ export default function Settings({ onApiKeySet, onError }: SettingsProps) {
   };
 
   return (
-    <div className="w-2/12 flex flex-row">
-      <label htmlFor="apiKey">API Key:</label>
+    <div className="flex flex-row text-text-primary">
+      <label htmlFor="apiKey" className="mt-2 mr-1">
+        <KeyIcon className="h-6 w-6 text-button" />
+      </label>
       <input
         type="text"
         id="apiKey"
         value={apiKey}
         onChange={handleInputChange}
-        className="border p-2 bg-black text-white"
+        className="border p-1 bg-background text-text-primary rounded-md"
       />
       <button
         onClick={handleSave}
-        className=" ml-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        className="ml-2 bg-button hover:bg-button text-white font-bold py-2 px-4 rounded"
       >
         Save
       </button>

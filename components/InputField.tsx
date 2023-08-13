@@ -17,9 +17,8 @@ const InputField: React.FC<InputFieldProps> = ({
 }) => {
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (assistantIsTyping) console.log("Enter pressed");
-    else if (event.key === "Enter" && message.trim() !== "" && !assistantIsTyping) {
+    else if (event.key === "Enter" && message.trim() !== "" && !assistantIsTyping)
       onEnterPress(message.trim());
-    }
   };
 
   return (
@@ -30,7 +29,7 @@ const InputField: React.FC<InputFieldProps> = ({
       onChange={onMessageChange}
       onKeyDown={handleKeyDown}
       disabled={error}
-      className="border p-2 bg-black text-white"
+      className="border p-2 bg-background text-white rounded-lg"
     />
   );
 };

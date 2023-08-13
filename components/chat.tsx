@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-// Types
 import { Conversation, Message, Role, defaultSystemPrompt } from "@/types/chat";
 
 // Tokenizer
@@ -9,11 +8,14 @@ import kuromoji from "kuromoji";
 
 // Components
 import ErrorMessage from "./ErrorMessage";
-import Settings from "./Settings";
-import SystemPrompt from "./SystemPromptModal";
+import ApiKeyInputs from "./ApiKeyInputs";
+import SystemPromptModal from "./SystemPromptModal";
 import MessageList from "./MessageList";
 import InputField from "./InputField";
 import EmotionModal from "./EmotionModal";
+
+import { FaceSmileIcon } from "@heroicons/react/24/outline";
+import { PencilSquareIcon } from "@heroicons/react/24/outline";
 
 import { OpenAIApi, Configuration } from "openai";
 
@@ -179,7 +181,7 @@ export function Chat({}: ChatProps) {
   return (
     <div className="flex items-center justify-center min-h-screen p-6 bg-background text-text-primary">
       {/* Modals */}
-      <SystemPrompt
+      <SystemPromptModal
         onSystemPromptSet={setCustomPrompt}
         open={openPromptModal}
         setOpen={setPromptModal}
@@ -193,8 +195,8 @@ export function Chat({}: ChatProps) {
 
       <div className="w-3/12 mr-2">
         <div className="flex flex-col space-y-4 mr-2">
-          <div className="border-b pb-4 text-text-secondary">
-            <Settings onApiKeySet={setOpenai} onError={setError} />
+          <div className="pb-4 text-text-secondary">
+            <ApiKeyInputs onApiKeySet={setOpenai} onError={setError} />
           </div>
         </div>
       </div>
@@ -213,13 +215,14 @@ export function Chat({}: ChatProps) {
               onClick={() => setOpenEmotionModal(true)}
               className="bg-button hover:bg-button text-white font-bold py-2 px-4 rounded mb-2"
             >
-              Edit Emotions & Expressions
+              <FaceSmileIcon className="h-6 w-6" />
             </button>
             <button
               onClick={() => setPromptModal(true)}
-              className="bg-button hover:bg-button text-white font-bold py-2 px-4 rounded mb-2"
+              className="bg-button hover:bg-button text-white font-bold py-2 px-4 rounded mb-2 flex flex-row"
             >
-              Edit System Prompt
+              <PencilSquareIcon className="h-6 w-6" />
+              System Prompt
             </button>
           </div>
         </div>

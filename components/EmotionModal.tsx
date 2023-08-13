@@ -12,12 +12,12 @@ const EmotionCard: React.FC<EmotionCardProps> = ({
   imageUrl,
   onImageLinkChange,
 }) => (
-  <div className="card">
-    <img src={imageUrl} alt={emotion} className="card-img-top" />
-    <div className="card-body">
+  <div className="card bg-background rounded-lg shadow-md p-4 m-2">
+    <img src={imageUrl} alt={emotion} className="card-img-top rounded-lg" />
+    <div className="card-body text-text-primary">
       <h5 className="card-title">{emotion}</h5>
       <button
-        className="btn btn-primary"
+        className="btn bg-button text-white hover:bg-button rounded-md py-1 px-2"
         onClick={() => {
           const newLink = prompt("Enter new image link");
           if (newLink !== null) {
@@ -77,10 +77,10 @@ const EmotionModal: React.FC<EmotionModalProps> = ({
         <Dialog.Overlay className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
 
         {/* Everything under here is shown in the modal */}
-        <div className="relative transform overflow-hidden rounded-lg bg-gray text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+        <div className="relative transform overflow-hidden rounded-lg bg-user-background text-text-primary shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
           <Tab.Group>
             <Tab.Panels>
-              <Tab.Panel className="p-4">
+              <Tab.Panel className="p-4 flex flex-wrap">
                 {Object.entries(emotionLinks).map(([emotion, imageUrl]) => (
                   <EmotionCard
                     key={emotion}
@@ -92,45 +92,46 @@ const EmotionModal: React.FC<EmotionModalProps> = ({
               </Tab.Panel>
             </Tab.Panels>
           </Tab.Group>
+          <div className="flex flex-wrap justify-between items-center bg-background p-4">
+            <div className="w-full sm:w-1/3 mb-4 sm:mb-0 sm:ml-2">
+              <input
+                type="text"
+                placeholder="Emotion Name"
+                value={newEmotionName}
+                onChange={(e) => setNewEmotionName(e.target.value)}
+                className="w-full px-3 py-2 border rounded-md text-text-primary bg-user-background"
+              />
+            </div>
+            <div className="w-full sm:w-1/3 mb-4 sm:mb-0 sm:ml-2">
+              <input
+                type="text"
+                placeholder="Emotion URL"
+                value={newEmotionUrl}
+                onChange={(e) => setNewEmotionUrl(e.target.value)}
+                className="w-full px-3 py-2 border rounded-md text-text-primary bg-user-background"
+              />
+            </div>
+            <div className="w-full sm:w-1/3 mb-4 sm:mb-0 sm:ml-2">
+              <button
+                onClick={handleAddEmotion}
+                className="w-full bg-button text-white px-3 py-2 rounded-md hover:bg-button"
+              >
+                Add Emotion
+              </button>
+            </div>
+          </div>
 
-          <div className="w-full sm:w-1/3 mb-4 sm:mb-0 sm:ml-2">
-            <input
-              type="text"
-              placeholder="Emotion Name"
-              value={newEmotionName}
-              onChange={(e) => setNewEmotionName(e.target.value)}
-              className="w-full px-3 py-2 border rounded-md text-black"
-            />
-          </div>
-          <div className="w-full sm:w-1/3 mb-4 sm:mb-0 sm:ml-2">
-            <input
-              type="text"
-              placeholder="Emotion URL"
-              value={newEmotionUrl}
-              onChange={(e) => setNewEmotionUrl(e.target.value)}
-              className="w-full px-3 py-2 border rounded-md text-black"
-            />
-          </div>
-          <div className="w-full sm:w-1/3 mb-4 sm:mb-0 sm:ml-2">
-            <button
-              onClick={handleAddEmotion}
-              className="w-full bg-green-500 text-white px-3 py-2 rounded-md hover:bg-green-600"
-            >
-              Add Emotion
-            </button>
-          </div>
-
-          <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+          <div className="bg-user-background px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
             <button
               type="button"
-              className="mt-3 inline-flex w-full justify-center rounded-md bg-blue-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-600 sm:mt-0 sm:w-auto"
+              className="mt-3 inline-flex w-full justify-center rounded-md bg-button px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-button sm:mt-0 sm:w-auto"
               onClick={onClose}
             >
               Save
             </button>
             <button
               type="button"
-              className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+              className="mt-3 inline-flex w-full justify-center rounded-md bg-user-background px-3 py-2 text-sm font-semibold text-text-primary shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-user-background sm:mt-0 sm:w-auto"
               onClick={onClose}
             >
               Cancel
