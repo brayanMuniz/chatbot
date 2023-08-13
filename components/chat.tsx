@@ -10,7 +10,7 @@ import kuromoji from "kuromoji";
 // Components
 import ErrorMessage from "./ErrorMessage";
 import Settings from "./Settings";
-import SystemPrompt from "./SystemPrompt";
+import SystemPrompt from "./SystemPromptModal";
 import MessageList from "./MessageList";
 import InputField from "./InputField";
 import EmotionModal from "./EmotionModal";
@@ -177,53 +177,59 @@ export function Chat({}: ChatProps) {
   };
 
   return (
-    <>
-      <div className="w-3/12">
-        <div className="flex flex-col space-y-4 mr-2">
-          <div className="border-b pb-4">
-            <button
-              onClick={() => setPromptModal(true)}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-2"
-            >
-              Edit System Prompt
-            </button>
-            <SystemPrompt
-              onSystemPromptSet={setCustomPrompt}
-              open={openPromptModal}
-              setOpen={setPromptModal}
-            />
+    <div className="flex items-center justify-center min-h-screen p-6 bg-background text-text-primary">
+      {/* Modals */}
+      <SystemPrompt
+        onSystemPromptSet={setCustomPrompt}
+        open={openPromptModal}
+        setOpen={setPromptModal}
+      />
 
-            <button
-              onClick={() => setOpenEmotionModal(true)}
-              className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mb-2"
-            >
-              Edit Emotions & Expressions
-            </button>
-            <EmotionModal
-              isOpen={openEmotionModal}
-              onClose={() => setOpenEmotionModal(false)}
-              onEmotionLinksSet={setEmotionLinks}
-            />
-          </div>
-          <div className="border-b pb-4">
+      <EmotionModal
+        isOpen={openEmotionModal}
+        onClose={() => setOpenEmotionModal(false)}
+        onEmotionLinksSet={setEmotionLinks}
+      />
+
+      <div className="w-3/12 mr-2">
+        <div className="flex flex-col space-y-4 mr-2">
+          <div className="border-b pb-4 text-text-secondary">
             <Settings onApiKeySet={setOpenai} onError={setError} />
-          </div>
-          <div className="pb-4">
-            <button
-              onClick={clearChatHistory}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            >
-              Clear Chat History
-            </button>
           </div>
         </div>
       </div>
 
       <div className="flex flex-col space-y-4 w-8/12">
+        <div className="flex flex-row justify-between">
+          <button
+            onClick={clearChatHistory}
+            className="bg-button hover:bg-button text-white font-bold py-2 px-4 rounded"
+          >
+            Clear Chat History
+          </button>
+
+          <div className="flex space-x-4">
+            <button
+              onClick={() => setOpenEmotionModal(true)}
+              className="bg-button hover:bg-button text-white font-bold py-2 px-4 rounded mb-2"
+            >
+              Edit Emotions & Expressions
+            </button>
+            <button
+              onClick={() => setPromptModal(true)}
+              className="bg-button hover:bg-button text-white font-bold py-2 px-4 rounded mb-2"
+            >
+              Edit System Prompt
+            </button>
+          </div>
+        </div>
+
         <div className="flex flex-col space-y-2 overflow-auto h-[80vh]">
           <MessageList conversation={conversation} tokenizer={tokenizer} />
           {error ? <ErrorMessage message={errorMessage} /> : null}
-          {assistantIsTyping && !error ? <div>Loading ...</div> : null}
+          {assistantIsTyping && !error ? (
+            <div className="text-text-secondary">Loading ...</div>
+          ) : null}
         </div>
 
         <div className="flex flex-col space-y-4">
@@ -239,6 +245,6 @@ export function Chat({}: ChatProps) {
           />
         </div>
       </div>
-    </>
+    </div>
   );
 }
