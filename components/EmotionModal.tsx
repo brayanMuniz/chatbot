@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Dialog, Tab } from "@headlessui/react";
+import { PencilSquareIcon } from "@heroicons/react/24/outline";
 
 interface EmotionCardProps {
   emotion: string;
@@ -12,9 +13,13 @@ const EmotionCard: React.FC<EmotionCardProps> = ({
   imageUrl,
   onImageLinkChange,
 }) => (
-  <div className="card bg-background rounded-lg shadow-md p-4 m-2">
-    <img src={imageUrl} alt={emotion} className="card-img-top rounded-lg" />
-    <div className="card-body text-text-primary">
+  <div className="card bg-background rounded-lg shadow-md m-2">
+    <img
+      src={imageUrl}
+      alt={emotion}
+      className="w-full h-48 object-cover rounded-lg "
+    />
+    <div className="card-body text-text-primary flex flex-row">
       <h5 className="card-title">{emotion}</h5>
       <button
         className="btn bg-button text-white hover:bg-button rounded-md py-1 px-2"
@@ -25,7 +30,7 @@ const EmotionCard: React.FC<EmotionCardProps> = ({
           }
         }}
       >
-        Change Image
+        <PencilSquareIcon className="h-6 w-6" />
       </button>
     </div>
   </div>
@@ -76,22 +81,19 @@ const EmotionModal: React.FC<EmotionModalProps> = ({
       <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
         <Dialog.Overlay className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
 
-        {/* Everything under here is shown in the modal */}
         <div className="relative transform overflow-hidden rounded-lg bg-user-background text-text-primary shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-          <Tab.Group>
-            <Tab.Panels>
-              <Tab.Panel className="p-4 flex flex-wrap">
-                {Object.entries(emotionLinks).map(([emotion, imageUrl]) => (
-                  <EmotionCard
-                    key={emotion}
-                    emotion={emotion}
-                    imageUrl={imageUrl}
-                    onImageLinkChange={(link) => handleImageLinkChange(emotion, link)}
-                  />
-                ))}
-              </Tab.Panel>
-            </Tab.Panels>
-          </Tab.Group>
+        {/* Todo: */}
+          <div className="grid grid-rows-4 grid-flow-col gap-4 auto-cols-auto">
+            {Object.entries(emotionLinks).map(([emotion, imageUrl]) => (
+              <EmotionCard
+                key={emotion}
+                emotion={emotion}
+                imageUrl={imageUrl}
+                onImageLinkChange={(link) => handleImageLinkChange(emotion, link)}
+              />
+            ))}
+          </div>
+
           <div className="flex flex-wrap justify-between items-center bg-background p-4">
             <div className="w-full sm:w-1/3 mb-4 sm:mb-0 sm:ml-2">
               <input

@@ -193,15 +193,15 @@ export function Chat({}: ChatProps) {
         onEmotionLinksSet={setEmotionLinks}
       />
 
-      <div className="w-3/12 mr-2">
-        <div className="flex flex-col space-y-4 mr-2">
-          <div className="pb-4 text-text-secondary">
-            <ApiKeyInputs onApiKeySet={setOpenai} onError={setError} />
-          </div>
+      <div className="w-3/12 flex flex-col space-y-4 mr-2">
+        <div>こんにちは！</div>
+        <div className="text-text-secondary space-y-2 overflow-auto h-[80vh]">
+          Vocabulary
         </div>
+        <ApiKeyInputs onApiKeySet={setOpenai} onError={setError} />
       </div>
 
-      <div className="flex flex-col space-y-4 w-8/12">
+      <div className="w-8/12 flex flex-col space-y-4">
         <div className="flex flex-row justify-between">
           <button
             onClick={clearChatHistory}
