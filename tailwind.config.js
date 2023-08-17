@@ -10,9 +10,10 @@ module.exports = {
       colors: {
         background: "#30343F",
         "user-background": "#282C36", // Slightly darker shade
-        "text-primary": "#FFFFFF",
+        "text-primary": "#FFFFFF", // white
         "text-secondary": "#788AA3",
         button: "#f6c0b9",
+        "button-hover": "#d49a98", // darker shade of button color
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
