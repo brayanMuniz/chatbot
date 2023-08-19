@@ -8,11 +8,11 @@ import kuromoji from "kuromoji";
 
 // Components
 import ErrorMessage from "./ErrorMessage";
-import ApiKeyInputs from "./ApiKeyInputs";
 import SystemPromptModal from "./SystemPromptModal";
 import MessageList from "./MessageList";
 import InputField from "./InputField";
 import EmotionModal from "./EmotionModal";
+import ApiKeyInputs from "./KeyInput";
 
 import { FaceSmileIcon } from "@heroicons/react/24/outline";
 import { PencilSquareIcon } from "@heroicons/react/24/outline";
@@ -22,8 +22,10 @@ import { OpenAIApi, Configuration } from "openai";
 interface ChatProps {}
 
 export function Chat({}: ChatProps) {
-  const [openai, setOpenai] = useState<OpenAIApi | null>(null);
+  const [openAI, setOpenAI] = useState<OpenAIApi | null>(null);
   const [customPrompt, setCustomPrompt] = useState("");
+
+  const [wanikaniApiKey, setWanikaniApiKey] = useState("");
 
   const [assistantIsTyping, setAssistantIsTyping] = useState(false);
 
@@ -67,10 +69,21 @@ export function Chat({}: ChatProps) {
     return totalPrompt;
   }
 
+  const configureOpenAIKey = (key: string) => {
+    const configuration = new Configuration({ apiKey: key });
+    const openai = new OpenAIApi(configuration);
+    setOpenAI(openai);
+  };
+
+  const configureWanikaniKey = (key: string) => {
+    setWanikaniApiKey(key);
+    localStorage.setItem("wanikaniApiKey", key);
+  };
+
   // Initialize
   useEffect(() => {
     // Open AI API
-    const apiKey: string | null = localStorage.getItem("apiKey");
+    const apiKey: string | null = localStorage.getItem("openAiApiKey");
     if (apiKey === null) {
       setError(true);
       setErrorMessage(
@@ -83,7 +96,7 @@ export function Chat({}: ChatProps) {
     });
     const openai = new OpenAIApi(configuration);
     console.log("OpenAI API initialized");
-    setOpenai(openai);
+    setOpenAI(openai);
 
     // System Prompt
     const customPrompt: string | null = localStorage.getItem("customPrompt");
@@ -116,6 +129,10 @@ export function Chat({}: ChatProps) {
       setEmotionLinks(JSON.parse(links));
     }
 
+    // Retrieve wanikani api key from local storage
+    const wanikaniApiKey: string | null = localStorage.getItem("wanikaniApiKey");
+    if (wanikaniApiKey !== null) setWanikaniApiKey(wanikaniApiKey);
+
     console.log(getTotalPrompt());
   }, []);
 
@@ -124,7 +141,7 @@ export function Chat({}: ChatProps) {
   };
 
   const handleNewMessage = async (role: Role, content: string) => {
-    if (!openai || !tokenizer) return;
+    if (!openAI || !tokenizer) return;
 
     const newMessage: Message = { role, content };
 
@@ -140,7 +157,7 @@ export function Chat({}: ChatProps) {
       // Call OpenAI API
       setAssistantIsTyping(true);
       try {
-        const response = await openai.createChatCompletion({
+        const response = await openAI.createChatCompletion({
           model: "gpt-3.5-turbo",
           messages: [
             {
@@ -198,7 +215,19 @@ export function Chat({}: ChatProps) {
         <div className="text-text-secondary space-y-2 overflow-auto h-[80vh]">
           Vocabulary
         </div>
-        <ApiKeyInputs onApiKeySet={setOpenai} onError={setError} />
+
+        <ApiKeyInputs
+          onApiKeySet={configureWanikaniKey}
+          onError={setError}
+          label="wanikani"
+          storageKey="wanikaniApiKey"
+        />
+        <ApiKeyInputs
+          onApiKeySet={configureOpenAIKey}
+          onError={setError}
+          label="openAI"
+          storageKey="openAiApiKey"
+        />
       </div>
 
       <div className="w-8/12 flex flex-col space-y-4">

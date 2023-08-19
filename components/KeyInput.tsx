@@ -3,11 +3,18 @@ import { OpenAIApi, Configuration } from "openai";
 import { KeyIcon, XMarkIcon, CheckIcon } from "@heroicons/react/24/outline";
 
 interface ApiKeyInputsProps {
-  onApiKeySet: (openai: OpenAIApi) => void;
+  label: string;
+  storageKey: string;
+  onApiKeySet: (apiKey: string) => void;
   onError: (error: boolean) => void;
 }
 
-export default function ApiKeyInputs({ onApiKeySet, onError }: ApiKeyInputsProps) {
+export default function ApiKeyInputs({
+  onApiKeySet,
+  onError,
+  label,
+  storageKey,
+}: ApiKeyInputsProps) {
   const [apiKey, setApiKey] = useState("");
   const [isChanging, setIsChanging] = useState(false);
   const [newKey, setNewKey] = useState(apiKey);
@@ -15,12 +22,12 @@ export default function ApiKeyInputs({ onApiKeySet, onError }: ApiKeyInputsProps
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const storedApiKey: string | null = localStorage.getItem("apiKey");
+    const storedApiKey: string | null = localStorage.getItem(storageKey);
     if (storedApiKey !== null) {
       setApiKey(storedApiKey);
       setNewKey(storedApiKey);
     }
-  }, []);
+  }, [storageKey]);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") handleSave();
@@ -47,16 +54,15 @@ export default function ApiKeyInputs({ onApiKeySet, onError }: ApiKeyInputsProps
     const trimmedApiKey = newKey.trim();
     if (trimmedApiKey === "") {
       onError(true);
-      alert("API Key not found. Please enter your API Key in the Settings panel.");
+      alert("Api key is empty");
       return;
     }
-    localStorage.setItem("apiKey", trimmedApiKey);
+    localStorage.setItem(storageKey, trimmedApiKey);
     const configuration = new Configuration({ apiKey: trimmedApiKey });
     const openai = new OpenAIApi(configuration);
-    onApiKeySet(openai);
+    // onApiKeySet(openai);
     onError(false);
     setIsChanging(false);
-    alert("API Key saved!");
   };
 
   const handleCancel = () => {
@@ -92,7 +98,7 @@ export default function ApiKeyInputs({ onApiKeySet, onError }: ApiKeyInputsProps
       <KeyIcon
         className={apiKey ? "h-6 w-6 text-button mr-1" : "h-6 w-6 text-button mr-1"}
       />
-      <span>OpenAI API Key</span>
+      <span>{label}</span>
     </div>
   );
 }
