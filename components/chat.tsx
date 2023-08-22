@@ -2,8 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import { Conversation, Message, Role, defaultSystemPrompt } from "@/types/chat";
+import { WanikaniUser } from "@/types/wanikani";
 
-// Tokenizer
+import axios from "axios";
 import kuromoji from "kuromoji";
 
 // Components
@@ -26,6 +27,11 @@ export function Chat({}: ChatProps) {
   const [customPrompt, setCustomPrompt] = useState("");
 
   const [wanikaniApiKey, setWanikaniApiKey] = useState("");
+  const [wanikaniUser, setWanikaniUser] = useState<WanikaniUser>({
+    subscribed: false,
+    maxLevelGranted: 0,
+    level: -1,
+  });
 
   const [assistantIsTyping, setAssistantIsTyping] = useState(false);
 
@@ -50,13 +56,15 @@ export function Chat({}: ChatProps) {
   function getTotalPrompt(): string {
     let totalPrompt = defaultSystemPrompt;
 
-    totalPrompt +=
-      "\n\nYou are also able to express emotions and greeting simply by typing <Image emotion=emotionName>. It is encouraged to use emotions and expressions. This is the emotionName list: ";
     const links = localStorage.getItem("savedImageLinks");
-    if (links) setEmotionLinks(JSON.parse(links));
+    if (links) {
+      totalPrompt +=
+        "\n\nYou are also able to express emotions and greeting simply by typing <Image emotion=emotionName>. It is encouraged to use emotions and expressions. This is the emotionName list: ";
+      setEmotionLinks(JSON.parse(links));
 
-    for (const [key, value] of Object.entries(emotionLinks)) {
-      totalPrompt += `${key}, `;
+      for (const [key, value] of Object.entries(emotionLinks)) {
+        totalPrompt += `${key}, `;
+      }
     }
 
     // if custom prompt in local storage, add it to the prompt
@@ -65,6 +73,9 @@ export function Chat({}: ChatProps) {
       totalPrompt +=
         "\n\nHere is what the user says about themselves: " + customPrompt;
     }
+
+    if (wanikaniUser.level !== -1)
+      totalPrompt += `\n\nUser's current Wanikani level: ${wanikaniUser.level}`;
 
     return totalPrompt;
   }
@@ -131,7 +142,26 @@ export function Chat({}: ChatProps) {
 
     // Retrieve wanikani api key from local storage
     const wanikaniApiKey: string | null = localStorage.getItem("wanikaniApiKey");
-    if (wanikaniApiKey !== null) setWanikaniApiKey(wanikaniApiKey);
+    if (wanikaniApiKey !== null) {
+      setWanikaniApiKey(wanikaniApiKey);
+
+      axios
+        .get("https://api.wanikani.com/v2/user", {
+          headers: { Authorization: `Bearer ${wanikaniApiKey}` },
+        })
+        .then((response) => {
+          const subscriptionStatus = response.data.data.subscription.active;
+          const maxLevelGranted = response.data.data.subscription.max_level_granted;
+          const level = response.data.data.level;
+
+          console.log("Subscription Status:", subscriptionStatus);
+          console.log("Max Level Granted:", maxLevelGranted);
+          setWanikaniUser({ level, subscribed: subscriptionStatus, maxLevelGranted });
+        })
+        .catch((error) => {
+          console.error("Error retrieving user data:", error);
+        });
+    }
 
     console.log(getTotalPrompt());
   }, []);
