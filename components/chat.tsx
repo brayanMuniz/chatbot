@@ -2,7 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 import { Conversation, Message, Role, defaultSystemPrompt } from "@/types/chat";
-import { WanikaniUser } from "@/types/wanikani";
+import {
+  WanikaniUser,
+  getVocabularyIdsNotInSrsStage9,
+  getVocabularyNotInSrsStage9,
+} from "@/types/wanikani";
 
 import axios from "axios";
 import kuromoji from "kuromoji";
@@ -149,7 +153,7 @@ export function Chat({}: ChatProps) {
         .get("https://api.wanikani.com/v2/user", {
           headers: { Authorization: `Bearer ${wanikaniApiKey}` },
         })
-        .then((response) => {
+        .then(async (response) => {
           const subscriptionStatus = response.data.data.subscription.active;
           const maxLevelGranted = response.data.data.subscription.max_level_granted;
           const level = response.data.data.level;
@@ -157,6 +161,16 @@ export function Chat({}: ChatProps) {
           console.log("Subscription Status:", subscriptionStatus);
           console.log("Max Level Granted:", maxLevelGranted);
           setWanikaniUser({ level, subscribed: subscriptionStatus, maxLevelGranted });
+
+          const vocabularyIds = await getVocabularyIdsNotInSrsStage9(wanikaniApiKey);
+          console.log("Vocabulary IDs:", vocabularyIds);
+          if (vocabularyIds.length != 0) {
+            const vocabularyData = await getVocabularyNotInSrsStage9(
+              wanikaniApiKey,
+              vocabularyIds
+            );
+            console.log("Vocabulary Data:", vocabularyData);
+          }
         })
         .catch((error) => {
           console.error("Error retrieving user data:", error);
