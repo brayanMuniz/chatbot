@@ -36,6 +36,8 @@ export function Chat({}: ChatProps) {
     maxLevelGranted: 0,
     level: -1,
   });
+  const [currentWanikaniLearningVocabulary, setCurrentWanikaniLearningVocabulary] =
+    useState<string[]>([]);
 
   const [assistantIsTyping, setAssistantIsTyping] = useState(false);
 
@@ -78,8 +80,9 @@ export function Chat({}: ChatProps) {
         "\n\nHere is what the user says about themselves: " + customPrompt;
     }
 
-    if (wanikaniUser.level !== -1)
-      totalPrompt += `\n\nUser's current Wanikani level: ${wanikaniUser.level}`;
+    if (wanikaniUser.level !== -1) {
+      totalPrompt += `\n\nUser's current Wanikani level: ${wanikaniUser.level} and the user is currently learning the following vocabulary: ${currentWanikaniLearningVocabulary}`;
+    }
 
     return totalPrompt;
   }
@@ -170,6 +173,9 @@ export function Chat({}: ChatProps) {
               vocabularyIds
             );
             console.log("Vocabulary Data:", vocabularyData);
+            const charactersArray = vocabularyData.map((item) => item.characters);
+            setCurrentWanikaniLearningVocabulary(charactersArray);
+            console.log("Characters Array:", charactersArray);
           }
         })
         .catch((error) => {
