@@ -6,6 +6,7 @@ interface InputFieldProps {
   error: boolean;
   onMessageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onEnterPress: (message: string) => void;
+  width: string;
 }
 
 const InputField: React.FC<InputFieldProps> = ({
@@ -14,6 +15,7 @@ const InputField: React.FC<InputFieldProps> = ({
   error,
   onMessageChange,
   onEnterPress,
+  width,
 }) => {
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (assistantIsTyping) console.log("Enter pressed");
@@ -29,7 +31,7 @@ const InputField: React.FC<InputFieldProps> = ({
       onChange={onMessageChange}
       onKeyDown={handleKeyDown}
       disabled={error}
-      className="border p-2 bg-background text-white rounded-lg"
+      className={`border p-2 bg-background text-white rounded-lg ${width}`}
     />
   );
 };

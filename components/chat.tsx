@@ -19,8 +19,8 @@ import InputField from "./InputField";
 import EmotionModal from "./EmotionModal";
 import ApiKeyInputs from "./KeyInput";
 
-import { FaceSmileIcon } from "@heroicons/react/24/outline";
-import { PencilSquareIcon } from "@heroicons/react/24/outline";
+import { FaceSmileIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
+import { MicrophoneIcon } from "@heroicons/react/24/solid";
 
 import { OpenAIApi, Configuration } from "openai";
 
@@ -314,7 +314,7 @@ export function Chat({}: ChatProps) {
           ) : null}
         </div>
 
-        <div className="flex flex-col space-y-4">
+        <div className="flex space-y-4">
           <InputField
             message={message}
             assistantIsTyping={assistantIsTyping}
@@ -324,7 +324,9 @@ export function Chat({}: ChatProps) {
               handleNewMessage("user", message);
               setMessage("");
             }}
+            width="w-11/12"
           />
+          <MicrophoneIcon className="h-8 w-1/12 text-button hover:text-button-hover cursor-pointer" />
         </div>
       </div>
     </div>
