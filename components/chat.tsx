@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Conversation, Message, Role, defaultSystemPrompt } from "@/types/chat";
 import {
   WanikaniUser,
@@ -40,6 +40,37 @@ export function Chat({}: ChatProps) {
     useState<string[]>([]);
 
   const [assistantIsTyping, setAssistantIsTyping] = useState(false);
+
+  // Audio
+  const [isRecording, setIsRecording] = useState(false);
+  const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+
+  // Function to start recording
+  const startRecording = () => {
+    if (mediaStream) {
+      const mediaRecorder = new MediaRecorder(mediaStream);
+      mediaRecorderRef.current = mediaRecorder;
+      mediaRecorder.start();
+      setIsRecording(true);
+
+      mediaRecorder.addEventListener("dataavailable", (event) => {
+        console.log(event.data);
+        // Todo: Handle the audio data in event.data
+      });
+
+      mediaRecorder.addEventListener("stop", () => {
+        setIsRecording(false);
+      });
+    }
+  };
+
+  // Function to stop recording
+  const stopRecording = () => {
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop();
+    }
+  };
 
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -184,7 +215,32 @@ export function Chat({}: ChatProps) {
     }
 
     console.log(getTotalPrompt());
+
+    navigator.mediaDevices
+      .getUserMedia({ audio: true })
+      .then((stream) => {
+        setMediaStream(stream);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+
+    // Cleanup
+    return () => {
+      if (mediaStream) {
+        mediaStream.getTracks().forEach((track) => track.stop());
+      }
+    };
   }, []);
+
+  // Microphone button click handler
+  const handleMicrophoneClick = () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
+  };
 
   const handleMessageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(event.target.value);
@@ -326,7 +382,10 @@ export function Chat({}: ChatProps) {
             }}
             width="w-11/12"
           />
-          <MicrophoneIcon className="h-8 w-1/12 text-button hover:text-button-hover cursor-pointer" />
+          <MicrophoneIcon
+            onClick={handleMicrophoneClick}
+            className="h-8 w-1/12 text-button hover:text-button-hover cursor-pointer"
+          />
         </div>
       </div>
     </div>
