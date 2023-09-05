@@ -5,20 +5,25 @@ const MicrophoneRecorder = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]); // To store audio chunks
 
   const startRecording = () => {
     if (mediaStream) {
-      const mediaRecorder = new MediaRecorder(mediaStream);
+      const mediaRecorder = new MediaRecorder(mediaStream, {
+        mimeType: "audio/webm;codecs=opus",
+      });
       mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = []; // Clear previous audio chunks
       mediaRecorder.start();
       setIsRecording(true);
 
       mediaRecorder.addEventListener("dataavailable", (event) => {
-        console.log(event.data);
-        // Todo: Handle the audio data in event.data
+        audioChunksRef.current.push(event.data);
       });
 
       mediaRecorder.addEventListener("stop", () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: "audio/wav" });
+        console.log(audioBlob);
         setIsRecording(false);
       });
     }
@@ -33,10 +38,8 @@ const MicrophoneRecorder = () => {
   const handleMicrophoneClick = () => {
     if (isRecording) {
       stopRecording();
-      setIsRecording(false);
     } else {
       startRecording();
-      setIsRecording(true);
     }
   };
 
