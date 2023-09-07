@@ -1,7 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import { MicrophoneIcon } from "@heroicons/react/24/solid";
+interface MicrophoneRecorderProps {
+  onAudioBlob: (blob: Blob) => void;
+}
 
-const MicrophoneRecorder = () => {
+const MicrophoneRecorder = ({ onAudioBlob }: MicrophoneRecorderProps) => {
   const [isRecording, setIsRecording] = useState(false);
   const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -24,6 +27,7 @@ const MicrophoneRecorder = () => {
       mediaRecorder.addEventListener("stop", () => {
         const audioBlob = new Blob(audioChunksRef.current, { type: "audio/wav" });
         console.log(audioBlob);
+        onAudioBlob(audioBlob); // Export blob to parent component
         setIsRecording(false);
       });
     }

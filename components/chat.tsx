@@ -21,7 +21,6 @@ import ApiKeyInputs from "./KeyInput";
 import MicrophoneRecorder from "./MicrophoneRecorder";
 
 import { FaceSmileIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
-import { MicrophoneIcon } from "@heroicons/react/24/solid";
 
 import { OpenAIApi, Configuration } from "openai";
 
@@ -240,6 +239,44 @@ export function Chat({}: ChatProps) {
     }
   };
 
+  const handleAudioBlob = async (blob: Blob) => {
+    const apiKey: string | null = localStorage.getItem("openAiApiKey");
+    const sizeInBytes = blob.size;
+    const sizeInMegabytes = sizeInBytes / (1024 * 1024);
+    if (sizeInMegabytes < 25 && apiKey) {
+      console.log("Audio Blob:", blob);
+      // Create a FormData object
+      const formData = new FormData();
+
+      // Append the audio blob and other data to the FormData object
+      formData.append("file", blob);
+      formData.append("model", "whisper-1");
+
+      try {
+        const response = await axios.post(
+          "https://api.openai.com/v1/audio/translations",
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${apiKey}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        // Handle the response
+        console.log(response.data);
+      } catch (error) {
+        // Handle the error
+        console.error(error);
+      }
+    }
+
+    // Call the Whisper API
+    // Handle the API response
+    // ...
+  };
+
   const clearChatHistory = () => {
     console.log("Clearing chat history...");
     localStorage.removeItem("conversation");
@@ -327,7 +364,7 @@ export function Chat({}: ChatProps) {
             }}
             width="w-11/12"
           />
-          <MicrophoneRecorder />
+          <MicrophoneRecorder onAudioBlob={handleAudioBlob} />
         </div>
       </div>
     </div>
