@@ -26,7 +26,6 @@ const MicrophoneRecorder = ({ onAudioBlob }: MicrophoneRecorderProps) => {
 
       mediaRecorder.addEventListener("stop", () => {
         const audioBlob = new Blob(audioChunksRef.current, { type: "audio/wav" });
-        console.log(audioBlob);
         onAudioBlob(audioBlob); // Export blob to parent component
         setIsRecording(false);
       });

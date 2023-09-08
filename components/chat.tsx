@@ -243,18 +243,19 @@ export function Chat({}: ChatProps) {
     const apiKey: string | null = localStorage.getItem("openAiApiKey");
     const sizeInBytes = blob.size;
     const sizeInMegabytes = sizeInBytes / (1024 * 1024);
+    console.log("Audio Blob:", blob);
     if (sizeInMegabytes < 25 && apiKey) {
-      console.log("Audio Blob:", blob);
-      // Create a FormData object
+      console.log("Using OpenAI API to transcribe audio file...");
+
       const formData = new FormData();
 
-      // Append the audio blob and other data to the FormData object
       formData.append("file", blob);
       formData.append("model", "whisper-1");
+      formData.append("language", "ja");
 
       try {
         const response = await axios.post(
-          "https://api.openai.com/v1/audio/translations",
+          "https://api.openai.com/v1/audio/transcriptions",
           formData,
           {
             headers: {
@@ -271,10 +272,6 @@ export function Chat({}: ChatProps) {
         console.error(error);
       }
     }
-
-    // Call the Whisper API
-    // Handle the API response
-    // ...
   };
 
   const clearChatHistory = () => {
