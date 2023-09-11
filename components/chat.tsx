@@ -264,9 +264,8 @@ export function Chat({}: ChatProps) {
             },
           }
         );
-
-        // Handle the response
         console.log(response.data);
+        setMessage(response.data.text);
       } catch (error) {
         // Handle the error
         console.error(error);

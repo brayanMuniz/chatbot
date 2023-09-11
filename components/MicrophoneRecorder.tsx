@@ -67,7 +67,7 @@ const MicrophoneRecorder = ({ onAudioBlob }: MicrophoneRecorderProps) => {
     <MicrophoneIcon
       onClick={handleMicrophoneClick}
       className={`h-8 w-1/12 ${
-        isRecording ? "text-red-500" : "text-button"
+        isRecording ? "text-button" : "text-white"
       } hover:text-button-hover cursor-pointer`}
     />
   );
