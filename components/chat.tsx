@@ -10,8 +10,12 @@ import {
 
 import axios from "axios";
 import kuromoji from "kuromoji";
+import { OpenAIApi, Configuration } from "openai";
 
-// Components
+// hooks
+import { useOpenAI } from "@/hooks/useOpenAI";
+
+// components
 import ErrorMessage from "./ErrorMessage";
 import SystemPromptModal from "./SystemPromptModal";
 import MessageList from "./MessageList";
@@ -22,12 +26,10 @@ import MicrophoneRecorder from "./MicrophoneRecorder";
 
 import { FaceSmileIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
 
-import { OpenAIApi, Configuration } from "openai";
-
 interface ChatProps {}
 
 export function Chat({}: ChatProps) {
-  const [openAI, setOpenAI] = useState<OpenAIApi | null>(null);
+  const [openAI, setOpenAI] = useOpenAI("");
   const [customPrompt, setCustomPrompt] = useState("");
 
   const [wanikaniApiKey, setWanikaniApiKey] = useState("");
@@ -100,22 +102,6 @@ export function Chat({}: ChatProps) {
 
   // Initialize
   useEffect(() => {
-    // Open AI API
-    const apiKey: string | null = localStorage.getItem("openAiApiKey");
-    if (apiKey === null) {
-      setError(true);
-      setErrorMessage(
-        "API Key not found. Please enter your API Key in the Settings panel."
-      );
-      return;
-    }
-    const configuration = new Configuration({
-      apiKey: apiKey,
-    });
-    const openai = new OpenAIApi(configuration);
-    console.log("OpenAI API initialized");
-    setOpenAI(openai);
-
     // System Prompt
     const customPrompt: string | null = localStorage.getItem("customPrompt");
     if (customPrompt !== null) {
@@ -306,6 +292,7 @@ export function Chat({}: ChatProps) {
           label="wanikani"
           storageKey="wanikaniApiKey"
         />
+
         <ApiKeyInputs
           onApiKeySet={configureOpenAIKey}
           onError={setError}
