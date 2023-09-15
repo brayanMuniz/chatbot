@@ -6,26 +6,10 @@ export interface WanikaniUser {
     maxLevelGranted: number;
 }
 
-interface Assignment {
-    id: number;
-    object: string;
-    url: string;
-    data_updated_at: string;
-    data: {
-        created_at: string;
-        subject_id: number;
-        subject_type: string;
-        srs_stage: number;
-        unlocked_at: string;
-        started_at: string;
-        passed_at: string;
-        burned_at: string;
-        available_at: string | null;
-        resurrected_at: string | null;
-        hidden: boolean;
-    };
+export interface WanikaniData {
+    user: WanikaniUser;
+    vocabulary: string[];
 }
-
 
 export async function getVocabularyIdsNotInSrsStage9(bearerToken: string): Promise<number[]> {
     const ids: number[] = [];

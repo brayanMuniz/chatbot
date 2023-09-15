@@ -2,11 +2,6 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import { Conversation, Message, Role, defaultSystemPrompt } from "@/types/chat";
-import {
-  WanikaniUser,
-  getVocabularyIdsNotInSrsStage9,
-  getVocabularyNotInSrsStage9,
-} from "@/types/wanikani";
 
 import axios from "axios";
 import kuromoji from "kuromoji";
@@ -14,6 +9,7 @@ import { OpenAIApi, Configuration } from "openai";
 
 // hooks
 import { useOpenAI } from "@/hooks/useOpenAI";
+import { useWanikani } from "@/hooks/useWanikani";
 
 // components
 import ErrorMessage from "./ErrorMessage";
@@ -33,13 +29,7 @@ export function Chat({}: ChatProps) {
   const [customPrompt, setCustomPrompt] = useState("");
 
   const [wanikaniApiKey, setWanikaniApiKey] = useState("");
-  const [wanikaniUser, setWanikaniUser] = useState<WanikaniUser>({
-    subscribed: false,
-    maxLevelGranted: 0,
-    level: -1,
-  });
-  const [currentWanikaniLearningVocabulary, setCurrentWanikaniLearningVocabulary] =
-    useState<string[]>([]);
+  const [wanikaniData, setWanikaniData] = useWanikani();
 
   const [assistantIsTyping, setAssistantIsTyping] = useState(false);
 
@@ -82,8 +72,8 @@ export function Chat({}: ChatProps) {
         "\n\nHere is what the user says about themselves: " + customPrompt;
     }
 
-    if (wanikaniUser.level !== -1) {
-      totalPrompt += `\n\nUser's current Wanikani level: ${wanikaniUser.level} and the user is currently learning the following vocabulary: ${currentWanikaniLearningVocabulary}`;
+    if (wanikaniData.user.level !== -1) {
+      totalPrompt += `\n\nUser's current Wanikani level: ${wanikaniData.user.level} and the user is currently learning the following vocabulary: ${wanikaniData.vocabulary}`;
     }
 
     return totalPrompt;
@@ -131,42 +121,6 @@ export function Chat({}: ChatProps) {
     const links = localStorage.getItem("savedImageLinks");
     if (links) {
       setEmotionLinks(JSON.parse(links));
-    }
-
-    // Retrieve wanikani api key from local storage
-    const wanikaniApiKey: string | null = localStorage.getItem("wanikaniApiKey");
-    if (wanikaniApiKey !== null) {
-      setWanikaniApiKey(wanikaniApiKey);
-
-      axios
-        .get("https://api.wanikani.com/v2/user", {
-          headers: { Authorization: `Bearer ${wanikaniApiKey}` },
-        })
-        .then(async (response) => {
-          const subscriptionStatus = response.data.data.subscription.active;
-          const maxLevelGranted = response.data.data.subscription.max_level_granted;
-          const level = response.data.data.level;
-
-          console.log("Subscription Status:", subscriptionStatus);
-          console.log("Max Level Granted:", maxLevelGranted);
-          setWanikaniUser({ level, subscribed: subscriptionStatus, maxLevelGranted });
-
-          const vocabularyIds = await getVocabularyIdsNotInSrsStage9(wanikaniApiKey);
-          console.log("Vocabulary IDs:", vocabularyIds);
-          if (vocabularyIds.length != 0) {
-            const vocabularyData = await getVocabularyNotInSrsStage9(
-              wanikaniApiKey,
-              vocabularyIds
-            );
-            console.log("Vocabulary Data:", vocabularyData);
-            const charactersArray = vocabularyData.map((item) => item.characters);
-            setCurrentWanikaniLearningVocabulary(charactersArray);
-            console.log("Characters Array:", charactersArray);
-          }
-        })
-        .catch((error) => {
-          console.error("Error retrieving user data:", error);
-        });
     }
 
     console.log(getTotalPrompt());
