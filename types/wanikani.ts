@@ -9,6 +9,7 @@ export interface WanikaniUser {
 export interface WanikaniData {
     user: WanikaniUser;
     vocabulary: string[];
+    apiKey: string | null;
 }
 
 export async function getVocabularyIdsNotInSrsStage9(bearerToken: string): Promise<number[]> {

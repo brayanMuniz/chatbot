@@ -28,7 +28,6 @@ export function Chat({}: ChatProps) {
   const [openAI, setOpenAI] = useOpenAI("");
   const [customPrompt, setCustomPrompt] = useState("");
 
-  const [wanikaniApiKey, setWanikaniApiKey] = useState("");
   const [wanikaniData, setWanikaniData] = useWanikani();
 
   const [assistantIsTyping, setAssistantIsTyping] = useState(false);
@@ -86,8 +85,8 @@ export function Chat({}: ChatProps) {
   };
 
   const configureWanikaniKey = (key: string) => {
-    setWanikaniApiKey(key);
     localStorage.setItem("wanikaniApiKey", key);
+    setWanikaniData((prevData) => ({ ...prevData, apiKey: key }));
   };
 
   // Initialize

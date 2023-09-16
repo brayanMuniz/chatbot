@@ -10,37 +10,47 @@ export const useWanikani = (): [WanikaniData, Dispatch<SetStateAction<WanikaniDa
             maxLevelGranted: 0,
         },
         vocabulary: [],
+        apiKey: null,
     });
+
+    const fetchData = async (apiKey: string | null) => {
+        if (!apiKey) return;
+
+        try {
+            const response = await axios.get("https://api.wanikani.com/v2/user", {
+                headers: { Authorization: `Bearer ${apiKey}` },
+            });
+
+            const level = response.data.data.level;
+            const subscriptionStatus = response.data.data.subscription.active;
+            const maxLevelGranted = response.data.data.subscription.max_level_granted;
+            
+
+            const vocabularyIds = await getVocabularyIdsNotInSrsStage9(apiKey);
+            if (vocabularyIds.length !== 0) {
+                const vocabularyData = await getVocabularyNotInSrsStage9(apiKey, vocabularyIds);
+                const charactersArray = vocabularyData.map((item) => item.characters);
+
+                console.log("Wanikani data retrieved successfully.");
+                setWanikaniData({
+                    user: { level, subscribed: subscriptionStatus, maxLevelGranted },
+                    vocabulary: charactersArray,
+                    apiKey,
+                });
+            }
+        } catch (error) {
+            console.error("Error retrieving user data:", error);
+        }
+    };
 
     useEffect(() => {
         const wanikaniApiKey: string | null = localStorage.getItem("wanikaniApiKey");
-        if (wanikaniApiKey !== null) {
-            axios
-                .get("https://api.wanikani.com/v2/user", {
-                    headers: { Authorization: `Bearer ${wanikaniApiKey}` },
-                })
-                .then(async (response) => {
-                    const subscriptionStatus = response.data.data.subscription.active;
-                    const maxLevelGranted = response.data.data.subscription.max_level_granted;
-                    const level = response.data.data.level;
-
-                    const vocabularyIds = await getVocabularyIdsNotInSrsStage9(wanikaniApiKey);
-                    if (vocabularyIds.length !== 0) {
-                        const vocabularyData = await getVocabularyNotInSrsStage9(wanikaniApiKey, vocabularyIds);
-                        const charactersArray = vocabularyData.map((item) => item.characters);
-
-                        console.log("Wanikani data retrieved successfully.");
-                        setWanikaniData({
-                            user: { level, subscribed: subscriptionStatus, maxLevelGranted },
-                            vocabulary: charactersArray,
-                        });
-                    }
-                })
-                .catch((error) => {
-                    console.error("Error retrieving user data:", error);
-                });
-        }
+        fetchData(wanikaniApiKey);
     }, []);
+
+    useEffect(() => {
+        fetchData(wanikaniData.apiKey);
+    }, [wanikaniData.apiKey]);
 
     return [wanikaniData, setWanikaniData];
 };
