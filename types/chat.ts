@@ -1,3 +1,5 @@
+import { WanikaniData, } from '@/types/wanikani';
+
 export interface Message {
     role: Role;
     content: string;
@@ -10,4 +12,27 @@ export const defaultSystemPrompt =
 
 export interface Conversation {
     messages: Message[];
+}
+
+export function getTotalPrompt(links: Record<string, string> | null, customPrompt: string | null, wanikaniData: WanikaniData): string {
+    let totalPrompt = defaultSystemPrompt;
+
+    if (links) {
+        totalPrompt +=
+            "\n\nYou are also able to express emotions and greeting simply by typing <Image emotion=emotionName>. It is encouraged to use emotions and expressions. This is the emotionName list: ";
+        for (const [key, value] of Object.entries(links)) {
+            totalPrompt += `${key}, `;
+        }
+    }
+
+    if (customPrompt) {
+        totalPrompt +=
+            "\n\nHere is what the user says about themselves: " + customPrompt;
+    }
+
+    if (wanikaniData.user.level !== -1) {
+        totalPrompt += `\n\nUser's current Wanikani level: ${wanikaniData.user.level} and the user is currently learning the following vocabulary: ${wanikaniData.vocabulary}`;
+    }
+
+    return totalPrompt;
 }

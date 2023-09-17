@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
-import { Conversation, Message, Role, defaultSystemPrompt } from "@/types/chat";
+import { Conversation, Message, Role, getTotalPrompt } from "@/types/chat";
 
 import axios from "axios";
 import kuromoji from "kuromoji";
@@ -48,35 +48,9 @@ export function Chat({}: ChatProps) {
   const [openPromptModal, setPromptModal] = useState(false);
   const [openEmotionModal, setOpenEmotionModal] = useState(false);
 
-  const [emotionLinks, setEmotionLinks] = useState({});
-
-  function getTotalPrompt(): string {
-    let totalPrompt = defaultSystemPrompt;
-
-    const links = localStorage.getItem("savedImageLinks");
-    if (links) {
-      totalPrompt +=
-        "\n\nYou are also able to express emotions and greeting simply by typing <Image emotion=emotionName>. It is encouraged to use emotions and expressions. This is the emotionName list: ";
-      setEmotionLinks(JSON.parse(links));
-
-      for (const [key, value] of Object.entries(emotionLinks)) {
-        totalPrompt += `${key}, `;
-      }
-    }
-
-    // if custom prompt in local storage, add it to the prompt
-    const customPrompt = localStorage.getItem("customPrompt");
-    if (customPrompt) {
-      totalPrompt +=
-        "\n\nHere is what the user says about themselves: " + customPrompt;
-    }
-
-    if (wanikaniData.user.level !== -1) {
-      totalPrompt += `\n\nUser's current Wanikani level: ${wanikaniData.user.level} and the user is currently learning the following vocabulary: ${wanikaniData.vocabulary}`;
-    }
-
-    return totalPrompt;
-  }
+  const [emotionLinks, setEmotionLinks] = useState<Record<string, string> | null>(
+    null
+  );
 
   const configureOpenAIKey = (key: string) => {
     const configuration = new Configuration({ apiKey: key });
@@ -121,8 +95,6 @@ export function Chat({}: ChatProps) {
     if (links) {
       setEmotionLinks(JSON.parse(links));
     }
-
-    console.log(getTotalPrompt());
   }, []);
 
   const handleMessageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -151,7 +123,7 @@ export function Chat({}: ChatProps) {
           messages: [
             {
               role: "system",
-              content: getTotalPrompt(),
+              content: getTotalPrompt(emotionLinks, customPrompt, wanikaniData),
             },
             ...conversation.messages,
             newMessage,
