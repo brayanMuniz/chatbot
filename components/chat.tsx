@@ -18,13 +18,13 @@ import MessageList from "./MessageList";
 import InputField from "./InputField";
 import EmotionModal from "./EmotionModal";
 import ApiKeyInputs from "./KeyInput";
-import MicrophoneRecorder from "./MicrophoneRecorder";
+// import MicrophoneRecorder from "./MicrophoneRecorder";
 
 import { FaceSmileIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
 
-interface ChatProps {}
+interface ChatProps { }
 
-export function Chat({}: ChatProps) {
+export function Chat({ }: ChatProps) {
   const [openAI, setOpenAI] = useOpenAI("");
   const [customPrompt, setCustomPrompt] = useState("");
 
@@ -206,9 +206,9 @@ export function Chat({}: ChatProps) {
       />
 
       <div className="w-3/12 flex flex-col space-y-4 mr-2">
-        <div>こんにちは！</div>
+        <div className="text-3xl">こんにちは！</div>
         <div className="text-text-secondary space-y-2 overflow-auto h-[80vh]">
-          Vocabulary
+          {/* Vocabulary */}
         </div>
 
         <ApiKeyInputs
@@ -272,7 +272,7 @@ export function Chat({}: ChatProps) {
             }}
             width="w-11/12"
           />
-          <MicrophoneRecorder onAudioBlob={handleAudioBlob} />
+          {/* <MicrophoneRecorder onAudioBlob={handleAudioBlob} /> */}
         </div>
       </div>
     </div>
