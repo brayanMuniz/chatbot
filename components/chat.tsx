@@ -119,7 +119,7 @@ export function Chat({ }: ChatProps) {
       setAssistantIsTyping(true);
       try {
         const response = await openAI.createChatCompletion({
-          model: "gpt-3.5-turbo",
+          model: "gpt-4",
           messages: [
             {
               role: "system",
