@@ -206,7 +206,7 @@ export function Chat({ }: ChatProps) {
       />
 
       <div className="w-3/12 flex flex-col space-y-4 mr-2">
-        <div className="text-3xl">こんにちは！</div>
+        <div className="text-3xl">KotobaKraft</div>
         <div className="text-text-secondary space-y-2 overflow-auto h-[80vh]">
           {/* Vocabulary */}
         </div>

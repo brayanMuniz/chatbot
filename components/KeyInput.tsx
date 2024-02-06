@@ -60,7 +60,10 @@ export default function ApiKeyInputs({
     localStorage.setItem(storageKey, trimmedApiKey);
     const configuration = new Configuration({ apiKey: trimmedApiKey });
     const openai = new OpenAIApi(configuration);
+    // ! Argument of type 'OpenAIApi' is not assignable to parameter of type 'string'.ts(2345)
     // onApiKeySet(openai);
+    setApiKey(trimmedApiKey);
+    onApiKeySet(trimmedApiKey); // Correctly pass the API key as a string
     onError(false);
     setIsChanging(false);
   };
